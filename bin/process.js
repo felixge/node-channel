@@ -9,6 +9,8 @@ setInterval(function() {
 	channel.emit('date', new Date());
 }, 6000);
 
-channel.addListener('ping', function() {
-	channel.emit('pong');
+channel.monitor.addListener('emit', function() {
+	setTimeout(function() {
+		channel.history.shift();
+	}, 5000);
 });

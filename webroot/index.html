@@ -12,7 +12,7 @@
 	$(function() {
 		var channel = $.nodeChannel.connect('http://localhost:8000/foobar');
 
-		channel.since = (+new Date()) - (20 * 1000);
+		channel.since = 0;
 
 		channel.addListener('date', function(str) {
 			$('p').text(str);
