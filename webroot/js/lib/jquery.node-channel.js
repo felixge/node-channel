@@ -57,9 +57,10 @@ try {
 
 	$.nodeChannel.Channel.prototype.emit = function(name) {
 		var args = Array.prototype.slice.call(arguments);
+		args.shift();
+
 		// Causes the event to be emitted locally, but not send to the remote channel
 		if (name === false) {
-			name = args.shift();
 			node.EventEmitter.prototype.emit.apply(this, args);
 			return;
 		}
@@ -115,7 +116,7 @@ try {
 		var self = this;
 		$.each(history, function(i, event) {
 			var args = event.args;
-			args.unshift(event.event);
+			args.unshift(event.name);
 			args.unshift(false);
 			self.emit.apply(self, args);
 		});

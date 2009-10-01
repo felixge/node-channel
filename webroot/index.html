@@ -12,25 +12,34 @@
 	$(function() {
 		var channel = $.nodeChannel.connect('http://localhost:8000/foobar');
 
+		channel.since = (+new Date()) - (20 * 1000);
+
 		channel.addListener('date', function(str) {
 			$('p').text(str);
 		});
 
-		channel.addListener('pong', function(str) {
-			$('button').text('pong');
+		channel.addListener('message', function(str) {
+			$('<li/>').text(str).appendTo('ul');
 		});
 
 		channel.listen(0);
 
-		$('button').click(function() {
-			channel.emit('ping');
+		$('#message').keypress(function(e) {
+			var $this = $(this);
+			if (e.keyCode == 13) {
+				channel.emit('message', $this.val());
+				$this.val('');
+			}
 		});
 	});
 	</script>
 </head>
 <body>
 	<h1>Server time</h1>
-	<p></p>
-	<button>Ping</button>
+	<p>Loading ...</p>
+	<h1>Chat</h1>
+	<input id="message" type="text">
+	<button>Send</button>
+	<ul id="chat"></ul>
 </body>
 </html>
