@@ -68,7 +68,7 @@ try {
 			url: this.uri,
 			data: {since: this.since},
 			async: true,
-			cache: false,
+			cache: true,
 			success: function(r){
 				self.since = r.history[r.history.length - 1].time;
 				setTimeout(function() {
