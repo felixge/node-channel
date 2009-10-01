@@ -1,0 +1,5 @@
+(1/5 | low) Timeouts should be honored
+(2/5 | low) Server and client should sync time in the beginning (simple /_time_diff?now=foo) function
+
+Philosophy:
+1) You never know if another hub is online or not, but each hub has a lastSeen attribute.

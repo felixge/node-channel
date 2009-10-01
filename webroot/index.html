@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>node-channel</title>
+	<link type="text/css" rel="stylesheet" href="css/screen.css">
+
+	<script type="text/javascript" src="js/dep/jquery.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.node-channel.js"></script>
+	<script type="text/javascript">
+	$(function() {
+		var channel = $.nodeChannel.listen('http://localhost:8000/foobar');
+		channel.poll(0);
+		channel.addListener('date', function(str) {
+			$('p').text(str);
+		});
+	});
+	</script>
+</head>
+<body>
+	<h1>Server time</h1>
+	<p></p>
+
+</body>
+</html>
