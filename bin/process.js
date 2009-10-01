@@ -8,3 +8,7 @@ var channel = server.createChannel('foobar');
 setInterval(function() {
 	channel.emit('date', new Date());
 }, 6000);
+
+channel.addListener('ping', function() {
+	channel.emit('pong');
+});

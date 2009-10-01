@@ -10,10 +10,20 @@
 	<script type="text/javascript" src="js/lib/jquery.node-channel.js"></script>
 	<script type="text/javascript">
 	$(function() {
-		var channel = $.nodeChannel.listen('http://localhost:8000/foobar');
-		channel.poll(0);
+		var channel = $.nodeChannel.connect('http://localhost:8000/foobar');
+
 		channel.addListener('date', function(str) {
 			$('p').text(str);
+		});
+
+		channel.addListener('pong', function(str) {
+			$('button').text('pong');
+		});
+
+		channel.listen(0);
+
+		$('button').click(function() {
+			channel.emit('ping');
 		});
 	});
 	</script>
@@ -21,6 +31,6 @@
 <body>
 	<h1>Server time</h1>
 	<p></p>
-
+	<button>Ping</button>
 </body>
 </html>
