@@ -1,5 +1,7 @@
 My XP-style todo list
 
+(3|5 high) Implement iframe POST support
+(3|5 high) Implement planning game example
 (5|5 med) Persistent storage
 (1|5 med) Server unavailable should be handled
 (4|5 med) Clients should be able to create channels dynamically
