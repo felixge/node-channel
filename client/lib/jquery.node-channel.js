@@ -143,21 +143,6 @@ try {
 				request.emit('error', xOptions, status)
 			}
 		});
-		// $.ajax({
-		// 	type: 'get',
-		// 	dataType: 'jsonp',
-		// 	url: this.uri,
-		// 	data: options.data,
-		// 	async: true,
-		// 	cache: true,
-		// 	success: function(r){
-		// 		request.emit('success', r);
-		// 	},
-		// 	error: function(xhr, status){
-		// 		request.emit('error', xhr, status);
-		// 	}
-		// });
-
 		return request;
 	};
 })(jQuery);
