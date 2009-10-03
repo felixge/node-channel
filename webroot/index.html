@@ -13,11 +13,6 @@
 		var channel = $.nodeChannel.connect('http://localhost:8000/foobar');
 
 		channel.since = 0;
-
-		channel.addListener('date', function(str) {
-			$('p').text(str);
-		});
-
 		channel.addListener('message', function(str) {
 			$('<li/>').text(str).appendTo('ul');
 		});
@@ -35,8 +30,6 @@
 	</script>
 </head>
 <body>
-	<h1>Server time</h1>
-	<p>Loading ...</p>
 	<h1>Chat</h1>
 	<input id="message" type="text">
 	<button>Send</button>

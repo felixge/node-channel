@@ -1,5 +1,8 @@
-(1/5 | low) Timeouts should be honored
-(2/5 | low) Server and client should sync time in the beginning (simple /_time_diff?now=foo) function
+Timeouts should be honored
+Server unavailable should be recognized
+Server and client should sync time in the beginning (simple /_time_diff?now=foo) 
+Clients should be able to create channels dynamically
+
 
 Philosophy:
 1) You never know if another hub is online or not, but each hub has a lastSeen attribute.
