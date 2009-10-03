@@ -69,8 +69,8 @@ try {
 			name: name,
 			args: args
 		};
-		var options = {data: {event: JSON.stringify(event)}};
-		var request = this.request(options);
+		var options = {data: [event]};
+		var request = this.request('post', options);
 
 		var self = this;
 		request.addListener('success', function(r) {
@@ -89,7 +89,7 @@ try {
 		this.pause = (pause === undefined) ? this.pause : pause;
 
 		var options = {data: {since: this.since}};
-		var request = this.request(options);
+		var request = this.request('get', options);
 
 		var self = this;
 		request.addListener('success', function(r) {
@@ -125,10 +125,18 @@ try {
 		});
 	};
 
-	$.nodeChannel.Channel.prototype.request = function(options) {
+	$.nodeChannel.Channel.prototype.request = function(method, options) {
+		if (method == 'get') {
+			return this._jsonp(options);
+		} else {
+			return this._iframe(method, options);
+		}
+	};
+
+	$.nodeChannel.Channel.prototype._jsonp = function(options) {
 		var request = new node.EventEmitter();
 
-		console.log('requesting ...', options);
+		console.log('jsonp ...', options);
 
 		var self = this;
 		$.jsonp({
@@ -143,6 +151,33 @@ try {
 				request.emit('error', xOptions, status)
 			}
 		});
+		return request;
+	};
+
+	var _counter = 0;
+	$.nodeChannel.Channel.prototype._iframe = function(method, options) {
+		var request = new node.EventEmitter();
+
+		console.log('iframe ...', options);
+
+		var $form = $('<form enctype="multipart/form-data" />')
+			.attr('action', this.uri)
+			.attr('target', 'node-channel-iframe-'+_counter)
+			.attr('method', method.toUpperCase())
+			.appendTo('body')
+			.hide();
+
+		$('<textarea name="data" />')
+			.text(JSON.stringify(options.data))
+			.prependTo($form);
+
+		var $iframe = $('<iframe id="node-channel-iframe-'+_counter+'" name="node-channel-iframe-'+_counter+'"/>')
+			.appendTo('body')
+			.hide();
+
+		$form.submit();
+
+		_counter++;
 		return request;
 	};
 })(jQuery);

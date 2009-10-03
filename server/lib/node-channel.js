@@ -1,6 +1,7 @@
 node.libraryPaths.unshift(node.path.dirname(__filename)+'/..');
 
 var http = require('/http.js');
+var multipart = require('/multipart.js');
 var utils = require('/utils.js');
 
 exports.createServer = function() {
@@ -25,25 +26,43 @@ exports.Server = function() {
 		}
 
 		var channel = this.channels[id];
-		if (request.req.uri.params.since) {
-			var since = parseInt(request.req.uri.params.since || 0, 10);
-			channel.onHistory(since, function(history) {
-				request.respond(200, {
-					ok: true,
-					since: since,
-					history: history
-				});
+		if (request.req.method.toLowerCase() == 'post') {
+			this.emit('postEvents', channel, request);
+		} else {
+			this.emit('getEvents', channel, request);
+		}
+	});
+
+	this.addListener('getEvents', function(channel, request) {
+		var since = parseInt(request.req.uri.params.since || 0, 10);
+		channel.onHistory(since, function(history) {
+			request.respond(200, {
+				ok: true,
+				since: since,
+				history: history
 			});
-		} else if (request.req.uri.params.event) {
-			var event = JSON.parse(request.req.uri.params.event);
-			var args = event.args;
-			args.unshift(event.name);
-			channel.emit.apply(channel, args);
+		});
+	});
+
+	this.addListener('postEvents', function(channel, request) {
+		var parser = new multipart.parse(request.req), self = this;
+
+		parser.addCallback(function(parts) {
+			if (!('data' in parts) || !parts.data) {
+				return request.respond(400, 'Sorry, but your message body contained no data!');
+			}
+
+			var events = JSON.parse(parts.data);
+			for (var i = 0; i < events.length; i++) {
+				var event = events[i], args = event.args;
+				args.unshift(event.name);
+				channel.emit.apply(channel, args);
+			}
 
 			request.respond(200, {
 				ok: true
 			});
-		}
+		});
 	});
 };
 node.inherits(exports.Server, node.EventEmitter);
