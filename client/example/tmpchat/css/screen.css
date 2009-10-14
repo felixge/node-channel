@@ -42,6 +42,11 @@ h1{
 	list-style-type: none;
 }
 
+.chat .message{
+	float: left;
+	clear: both;
+}
+
 .chat textarea{
 	width: 600px;
 	margin: 0 10px 0 0;

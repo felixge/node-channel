@@ -65,18 +65,25 @@ try {
 })(window.node);
 
 (function($) {
-	$.nodeChannel = {};
+	var nodeChannel = $.nodeChannel = {};
 
+	nodeChannel.uuid = function() {
+		var uuid = '';
+		for (i = 0; i < 32; i++) {
+			uuid += Math.floor(Math.random() * 16).toString(16);
+		}
+		return uuid;
+	};
 
-	$.nodeChannel.request = function(method, options) {
+	nodeChannel.request = function(method, options) {
 		if (method == 'get') {
-			return $.nodeChannel._jsonp(options);
+			return nodeChannel._jsonp(options);
 		} else {
-			return $.nodeChannel._iframe(method, options);
+			return nodeChannel._iframe(method, options);
 		}
 	};
 
-	$.nodeChannel._jsonp = function(options) {
+	nodeChannel._jsonp = function(options) {
 		var request = new node.Promise();
 
 		console.log('jsonp ...', options);
@@ -98,8 +105,15 @@ try {
 	};
 
 	var _counter = 0;
-	$.nodeChannel._iframe = function(method, options) {
+	nodeChannel._iframe = function(method, options) {
 		var request = new node.Promise();
+
+		var requestDone = false;
+		setTimeout(function() {
+			if (requestDone == false) {
+				request.emitError('timeout');
+			}
+		}, options.timeout || 5000);
 
 		console.log('iframe ...', options);
 
@@ -110,6 +124,10 @@ try {
 			.appendTo('body')
 			.hide();
 
+		if (options.fetch) {
+			options.data = $.extend({}, options.data, {'_request_id': nodeChannel.uuid()})
+		}
+
 		$('<textarea name="data" />')
 			.text(JSON.stringify(options.data))
 			.prependTo($form);
@@ -119,9 +137,32 @@ try {
 			.hide();
 
 		$iframe.bind('load', function() {
-			request.emitSuccess();
 			$iframe.remove();
 			$form.remove();
+
+			if (!options.fetch) {
+				requestDone = true;
+				return request.emitSuccess();
+			}
+
+			var response = nodeChannel.request('get', {
+				uri: options.fetch+'/_response',
+				data: {'_request_id': options.data._request_id}
+			});
+			response.addErrback(function(r) {
+				requestDone = true;
+				request.emitError('response-error');
+			});
+
+			response.addCallback(function(r) {
+				requestDone = true;
+
+				if (r.error) {
+					return request.emitError(r.error);
+				}
+
+				request.emitSuccess(r);
+			});
 		});
 		$form.submit();
 
@@ -129,47 +170,46 @@ try {
 		return request;
 	};
 
-	$.nodeChannel.server = function(uri) {
-		var channel = new $.nodeChannel.Server(uri);
+	nodeChannel.server = function(uri) {
+		var channel = new nodeChannel.Server(uri);
 		return channel;
 	};
 
 
-	$.nodeChannel.Server = function(uri) {
+	nodeChannel.Server = function(uri) {
 		node.EventEmitter.call(this);
 
 		this.uri = uri.replace(/\/+$/, '');
 	};
-	node.inherits($.nodeChannel.Server, node.EventEmitter);
+	node.inherits(nodeChannel.Server, node.EventEmitter);
 
-	$.nodeChannel.Server.prototype.createChannel = function() {
-		var request = $.nodeChannel.request('post', {
+	nodeChannel.Server.prototype.createChannel = function() {
+		var self = this;
+
+		var request = nodeChannel.request('post', {
 			uri: this.uri+'/_create_channel',
-			data: {}
+			data: {},
+			fetch: this.uri
 		});
 
 		var promise = new node.Promise();
-		request.addListener(function() {
-			console.log('awesome');
+		request.addErrback(function(e) {
+			promise.emitError(e);
 		});
-		setTimeout(function() {
-			promise.emitSuccess({name: 'awesome'});
-		}, 100);
 
+		request.addCallback(function(r) {
+			var channel = new nodeChannel.Channel(self, r.id);
+			promise.emitSuccess(channel);
+		});
 		return promise;
 	};
 
+	nodeChannel.Server.prototype.connectChannel = function(id) {
+		var channel = new nodeChannel.Channel(this, id);
+		return channel;
+	};
 
-
-
-
-
-
-
-
-
-
-	$.nodeChannel.Channel = function(server, id) {
+	nodeChannel.Channel = function(server, id) {
 		node.EventEmitter.call(this);
 
 		this.monitor = new node.EventEmitter();
@@ -181,27 +221,9 @@ try {
 		this.timeout = 45 * 1000;
 		this.pause =  1 * 1000;
 	};
-	node.inherits($.nodeChannel.Channel, node.EventEmitter);
+	node.inherits(nodeChannel.Channel, node.EventEmitter);
 
-	$.nodeChannel.Channel.prototype.create = function() {
-		var method, options = {};
-		if (!this.id) {
-			method = 'post';
-			options.uri = this.server;
-			options.data = {};
-		} else {
-			throw "Channel PUT not supported yet";
-			// method = 'put';
-			// uri = this.server + this.id;
-		}
-
-		var request = this.request(method, options), self = this;
-		request.addCallback(function() {
-			self.listen();
-		});
-	};
-
-	$.nodeChannel.Channel.prototype.emit = function(name) {
+	nodeChannel.Channel.prototype.emit = function(name) {
 		var args = Array.prototype.slice.call(arguments);
 		args.shift();
 
@@ -215,8 +237,11 @@ try {
 			name: name,
 			args: args
 		};
-		var options = {data: [event]};
-		var request = this.request('post', options);
+		var options = {
+			uri: this.server.uri+'/'+this.id,
+			data: [event]
+		};
+		var request = nodeChannel.request('post', options);
 
 		var self = this;
 		request.addListener('success', function(r) {
@@ -230,12 +255,15 @@ try {
 		node.EventEmitter.prototype.emit.apply(this, args);
 	};
 
-	$.nodeChannel.Channel.prototype.listen = function(pause, timeout) {
+	nodeChannel.Channel.prototype.listen = function(pause, timeout) {
 		this.timeout = (timeout === undefined) ? this.timeout : timeout;
 		this.pause = (pause === undefined) ? this.pause : pause;
 
-		var options = {data: {since: this.since}};
-		var request = this.request('get', options);
+		var options = {
+			uri: this.server.uri+'/'+this.id,
+			data: {since: this.since}
+		};
+		var request = nodeChannel.request('get', options);
 
 		var self = this;
 		request.addListener('success', function(r) {
@@ -259,7 +287,7 @@ try {
 		});
 	};
 
-	$.nodeChannel.Channel.prototype._emitHistory = function(history) {
+	nodeChannel.Channel.prototype._emitHistory = function(history) {
 		this.since = history[history.length - 1].time;
 
 		var self = this;
@@ -269,64 +297,5 @@ try {
 			args.unshift(false);
 			self.emit.apply(self, args);
 		});
-	};
-
-	$.nodeChannel.Channel.prototype.request = function(method, options) {
-		if (method == 'get') {
-			return this._jsonp(options);
-		} else {
-			return this._iframe(method, options);
-		}
-	};
-
-	$.nodeChannel.Channel.prototype._jsonp = function(options) {
-		var request = new node.Promise();
-
-		console.log('jsonp ...', options);
-
-		var self = this;
-		$.jsonp({
-			url: options.uri,
-			data: options.data,
-			callbackParameter: 'callback',
-			timeout: this.timeout,
-			success: function(r){
-				request.emitSuccess(r);
-			},
-			error: function(xOptions, status) {
-				request.emitError(xOptions, status)
-			}
-		});
-		return request;
-	};
-
-	var _counter = 0;
-	$.nodeChannel.Channel.prototype._iframe = function(method, options) {
-		var request = new node.Promise();
-
-		console.log('iframe ...', options);
-
-		var $form = $('<form enctype="multipart/form-data" />')
-			.attr('action', options.uri)
-			.attr('target', 'node-channel-iframe-'+_counter)
-			.attr('method', method.toUpperCase())
-			.appendTo('body')
-			.hide();
-
-		$('<textarea name="data" />')
-			.text(JSON.stringify(options.data))
-			.prependTo($form);
-
-		var $iframe = $('<iframe id="node-channel-iframe-'+_counter+'" name="node-channel-iframe-'+_counter+'"/>')
-			.appendTo('body')
-			.hide();
-
-		$iframe.bind('load', function() {
-			request.emitSuccess();
-		});
-		$form.submit();
-
-		_counter++;
-		return request;
 	};
 })(jQuery);

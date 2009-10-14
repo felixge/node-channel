@@ -4,6 +4,15 @@ var http = require('/http.js');
 var multipart = require('/multipart.js');
 var utils = require('/utils.js');
 
+exports.uuid = function() {
+	var uuid = '';
+	for (i = 0; i < 32; i++) {
+		uuid += Math.floor(Math.random() * 16).toString(16);
+	}
+	return uuid;
+};
+
+
 exports.createServer = function() {
 	return new exports.Server();
 };
@@ -12,6 +21,7 @@ exports.Server = function() {
 	node.EventEmitter.call(this);
 
 	this.channels = {};
+	this.responses = {};
 
 	var self = this;
 	this.httpServer = http.createServer(function(req, res) {
@@ -19,14 +29,69 @@ exports.Server = function() {
 	});
 
 	this.addListener('request', function(request) {
-		var id = request.req.uri.path.substr(1);
+		var req = request.req;
 
+		p(req.uri);
+
+
+		var prefix = req.uri.path.substr(1, 1);
+		if (prefix == '_') {
+			request.parts(function(parts) {
+				var data = {};
+				if (parts.data) {
+					try {
+						data = JSON.parse(parts.data);
+					} catch (e) {
+						// @fixme needs to be handled
+					}
+				}
+
+				switch (req.uri.path) {
+					case '/_response':
+						var request_id = req.uri.params._request_id;
+						var response = self.responses[request_id];
+						if (response) {
+							request.respond(response.code, response.response);
+						} else {
+							request.respond(404, {error: 
+								'Unknown request_id: '+
+								JSON.stringify(request_id)
+							})
+
+						}
+						break;
+					case '/_create_channel':
+						var uuid = exports.uuid();
+						var channel = self.createChannel(uuid);
+
+						request.respond(200, {
+							ok: true,
+							id: uuid
+						});
+						break;
+					default:
+						request.respond(404, {error: 
+							'Unknown command: '+
+							JSON.stringify(req.uri.path)
+						})
+						break;
+				}
+
+				if (data._request_id) {
+					self.responses[data._request_id] = request.response;
+				}
+			});
+
+			return;
+		}
+
+		var id = req.uri.path.substr(1);
 		if (!(id in this.channels)) {
 			return request.respond(404, {error: 'Unknown channel: '+JSON.stringify(id)})
 		}
 
 		var channel = this.channels[id];
-		if (request.req.method.toLowerCase() == 'post') {
+		if (req.method.toLowerCase() == 'post') {
 			this.emit('postEvents', channel, request);
 		} else {
 			this.emit('getEvents', channel, request);
@@ -81,19 +146,40 @@ exports.Request = function(req, res) {
 
 	this.req = req;
 	this.res = res;
+
+	this.response = null;
 };
 node.inherits(exports.Request, node.EventEmitter);
 
 exports.Request.prototype.respond = function(code, response) {
-	var response = JSON.stringify(response);
-	if (this.req.uri.params.callback) {
-		response = this.req.uri.params.callback + '('+response+')';
-	}
+	this.response = {code: code, response: response};
 
-	this.res.sendHeader(code, {'Content-Type': 'text/javascript'});
+	var jsonp = this.req.uri.params.callback;
+
+	response = JSON.stringify(response);
+	response = jsonp + '('+response+')';
+
+	if (jsonp) {
+		this.res.sendHeader(200, {'Content-Type': 'text/javascript'});
+	} else {
+		this.res.sendHeader(code, {'Content-Type': 'text/javascript'});
+	}
+	
 	this.res.sendBody(response);
 	this.res.finish();
 };
+
+exports.Request.prototype.parts = function(callback) {
+	if (this.req.method === 'get') {
+		return callback();
+	}
+
+	var parser = new multipart.parse(this.req);
+	parser.addCallback(function(parts) {
+		callback(parts);
+	});
+};
+
 exports.Channel = function(id) {
 	node.EventEmitter.call(this);
 
