@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+	<title>tmpchat.org</title>
+	<link type="text/css" rel="stylesheet" href="css/screen.css">
+
+</head>
+<body>
+	<div class="start">
+		<h1>Need a quick temporary chat?</h1>
+
+		<button>Click here</button>
+	</div>
+	<div class="chat hidden">
+		<div class="header">
+			<label>Url:</label>
+			<input type="text">
+		</div>
+		<ul class="log">
+
+			<li><strong>User:</strong> Hello World</li>
+			<li><strong>Friend:</strong> Ditto</li>
+		</ul>
+		<div class="message">
+			<textarea name="message"></textarea>
+
+			<button>Send Message</button>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="../../dep/jquery.js"></script>
+	<script type="text/javascript" src="../../dep/jquery.jsonp.js"></script>
+	<script type="text/javascript" src="../../dep/json2.js"></script>
+
+	<script type="text/javascript" src="../../lib/jquery.node-channel.js"></script>
+	<script type="text/javascript" src="js/tmp_chat.js"></script></body>
+</html>

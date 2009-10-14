@@ -29,31 +29,177 @@ try {
 	};
 
 	node.EventEmitter.prototype.emit = function(event) {
-		var listeners = this.listeners(event), args = Array.prototype.slice.call(arguments);
+		var listeners = this.listeners(event);
+		var args = Array.prototype.slice.call(arguments);
+
 		args.shift();
 		for (var i = 0; i < listeners.length; i++) {
-			listeners[i].apply(this, args || []);
+			listeners[i].apply(this, args);
 		}
+	};
+
+	node.Promise = function() {
+		node.EventEmitter.call(this);
+	};
+	node.inherits(node.Promise, node.EventEmitter);
+
+	node.Promise.prototype.addCallback = function(fn) {
+		return this.addListener('success', fn);
+	}
+
+	node.Promise.prototype.addErrback = function(fn) {
+		return this.addListener('error', fn);
+	}
+
+	node.Promise.prototype.emitSuccess = function() {
+		var args = Array.prototype.slice.call(arguments);
+		args.unshift('success');
+		this.emit.apply(this, args);
+	};
+
+	node.Promise.prototype.emitError = function() {
+		var args = Array.prototype.slice.call(arguments);
+		args.unshift('error');
+		this.emit.apply(this, args);
 	};
 })(window.node);
 
 (function($) {
 	$.nodeChannel = {};
 
-	$.nodeChannel.connect = function(uri) {
-		var channel = new $.nodeChannel.Channel(uri);
+
+	$.nodeChannel.request = function(method, options) {
+		if (method == 'get') {
+			return $.nodeChannel._jsonp(options);
+		} else {
+			return $.nodeChannel._iframe(method, options);
+		}
+	};
+
+	$.nodeChannel._jsonp = function(options) {
+		var request = new node.Promise();
+
+		console.log('jsonp ...', options);
+
+		var self = this;
+		$.jsonp({
+			url: options.uri,
+			data: options.data,
+			callbackParameter: 'callback',
+			timeout: this.timeout,
+			success: function(r){
+				request.emitSuccess(r);
+			},
+			error: function(xOptions, status) {
+				request.emitError(xOptions, status)
+			}
+		});
+		return request;
+	};
+
+	var _counter = 0;
+	$.nodeChannel._iframe = function(method, options) {
+		var request = new node.Promise();
+
+		console.log('iframe ...', options);
+
+		var $form = $('<form enctype="multipart/form-data" />')
+			.attr('action', options.uri)
+			.attr('target', 'node-channel-iframe-'+_counter)
+			.attr('method', method.toUpperCase())
+			.appendTo('body')
+			.hide();
+
+		$('<textarea name="data" />')
+			.text(JSON.stringify(options.data))
+			.prependTo($form);
+
+		var $iframe = $('<iframe id="node-channel-iframe-'+_counter+'" name="node-channel-iframe-'+_counter+'"/>')
+			.appendTo('body')
+			.hide();
+
+		$iframe.bind('load', function() {
+			request.emitSuccess();
+			$iframe.remove();
+			$form.remove();
+		});
+		$form.submit();
+
+		_counter++;
+		return request;
+	};
+
+	$.nodeChannel.server = function(uri) {
+		var channel = new $.nodeChannel.Server(uri);
 		return channel;
 	};
 
-	$.nodeChannel.Channel = function(uri) {
+
+	$.nodeChannel.Server = function(uri) {
 		node.EventEmitter.call(this);
-		this.uri = uri;
+
+		this.uri = uri.replace(/\/+$/, '');
+	};
+	node.inherits($.nodeChannel.Server, node.EventEmitter);
+
+	$.nodeChannel.Server.prototype.createChannel = function() {
+		var request = $.nodeChannel.request('post', {
+			uri: this.uri+'/_create_channel',
+			data: {}
+		});
+
+		var promise = new node.Promise();
+		request.addListener(function() {
+			console.log('awesome');
+		});
+		setTimeout(function() {
+			promise.emitSuccess({name: 'awesome'});
+		}, 100);
+
+		return promise;
+	};
+
+
+
+
+
+
+
+
+
+
+
+	$.nodeChannel.Channel = function(server, id) {
+		node.EventEmitter.call(this);
+
+		this.monitor = new node.EventEmitter();
+
+		this.server = server;
+		this.id = id;
 		this.since = (+new Date());
 
 		this.timeout = 45 * 1000;
 		this.pause =  1 * 1000;
 	};
 	node.inherits($.nodeChannel.Channel, node.EventEmitter);
+
+	$.nodeChannel.Channel.prototype.create = function() {
+		var method, options = {};
+		if (!this.id) {
+			method = 'post';
+			options.uri = this.server;
+			options.data = {};
+		} else {
+			throw "Channel PUT not supported yet";
+			// method = 'put';
+			// uri = this.server + this.id;
+		}
+
+		var request = this.request(method, options), self = this;
+		request.addCallback(function() {
+			self.listen();
+		});
+	};
 
 	$.nodeChannel.Channel.prototype.emit = function(name) {
 		var args = Array.prototype.slice.call(arguments);
@@ -134,21 +280,21 @@ try {
 	};
 
 	$.nodeChannel.Channel.prototype._jsonp = function(options) {
-		var request = new node.EventEmitter();
+		var request = new node.Promise();
 
 		console.log('jsonp ...', options);
 
 		var self = this;
 		$.jsonp({
-			url: this.uri,
+			url: options.uri,
 			data: options.data,
 			callbackParameter: 'callback',
 			timeout: this.timeout,
 			success: function(r){
-				request.emit('success', r);
+				request.emitSuccess(r);
 			},
 			error: function(xOptions, status) {
-				request.emit('error', xOptions, status)
+				request.emitError(xOptions, status)
 			}
 		});
 		return request;
@@ -156,12 +302,12 @@ try {
 
 	var _counter = 0;
 	$.nodeChannel.Channel.prototype._iframe = function(method, options) {
-		var request = new node.EventEmitter();
+		var request = new node.Promise();
 
 		console.log('iframe ...', options);
 
 		var $form = $('<form enctype="multipart/form-data" />')
-			.attr('action', this.uri)
+			.attr('action', options.uri)
 			.attr('target', 'node-channel-iframe-'+_counter)
 			.attr('method', method.toUpperCase())
 			.appendTo('body')
@@ -175,6 +321,9 @@ try {
 			.appendTo('body')
 			.hide();
 
+		$iframe.bind('load', function() {
+			request.emitSuccess();
+		});
 		$form.submit();
 
 		_counter++;

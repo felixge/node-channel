@@ -1,0 +1,52 @@
+h1{
+	font-size: 25px;
+	font-family: Arial;
+}
+
+.hidden{
+	display: none;
+}
+
+.chat{
+	position: fixed;
+	padding: 20px;
+}
+
+.chat .header{
+	margin: 0 0 10px 0;
+	float: left;
+	clear: both;
+}
+
+.chat .header label{
+	margin: 2px 0 0 0;
+	width: 54px;
+}
+
+.chat .header input{
+	width: 540px;
+}
+
+.chat .header input, .chat .header label{
+	float: left;
+}
+
+.chat ul{
+	margin: 0 0 10px 0;
+	padding: 0;
+	float: left;
+	clear: both;
+}
+
+.chat ul li{
+	list-style-type: none;
+}
+
+.chat textarea{
+	width: 600px;
+	margin: 0 10px 0 0;
+}
+
+.chat textarea, .chat button{
+	float: left;
+}
