@@ -1,5 +1,6 @@
 $(function() {
-	var server = $.nodeChannel.server('http://localhost:8001/');
+	var here = parseUri(window.location.href);
+	var server = $.nodeChannel.server('http://'+here.host+':8001/');
 
 	var channelId = window.location.hash.replace(/\?.*$/, '').substr(1);
 	if (channelId) {
@@ -25,7 +26,7 @@ $(function() {
 
 		$('.start').remove();
 		$('.chat').fadeIn();
-		$('.chat input').val('http://localhost/node-channel/client/example/tmpchat/#'+channel.id);
+		$('.chat input').val(here.source+'#'+channel.id);
 
 		channel.addListener('message', function(message) {
 			$('.chat .log').append($('<li/>').text(message));
