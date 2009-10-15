@@ -86,8 +86,6 @@ try {
 	nodeChannel._jsonp = function(options) {
 		var request = new node.Promise();
 
-		console.log('jsonp ...', options);
-
 		var self = this;
 		$.jsonp({
 			url: options.uri,
@@ -114,8 +112,6 @@ try {
 				request.emitError('timeout');
 			}
 		}, options.timeout || 5000);
-
-		console.log('iframe ...', options);
 
 		var $form = $('<form enctype="multipart/form-data" />')
 			.attr('action', options.uri)
@@ -267,7 +263,6 @@ try {
 
 		var self = this;
 		request.addListener('success', function(r) {
-			console.log('received', r);
 			self._emitHistory(r.history);
 
 			setTimeout(function() {
@@ -277,7 +272,6 @@ try {
 
 		request.addListener('error', function(xOptions, status) {
 			if (status != 'timeout') {
-				console.log('error');
 				return;
 			}
 
