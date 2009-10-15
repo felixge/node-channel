@@ -18,7 +18,15 @@ h1{
 	clear: both;
 }
 
+.chat .header a{
+	float: left;
+	clear: both;
+	margin: 0 0 10px 0;
+}
+
 .chat .header label{
+	clear: left;
+	float: left;
 	margin: 2px 0 0 0;
 	width: 54px;
 }

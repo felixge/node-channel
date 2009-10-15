@@ -8,18 +8,6 @@ $(function() {
 		startChat(c);
 	}
 
-	$('.start button').click(function() {
-		server
-			.createChannel()
-			.addErrback(function(e) {
-				alert('Could not create channel, reason: '+"\n\n"+JSON.stringify(e));
-			})
-			.addCallback(function(channel) {
-				startChat(channel);
-			});
-		return false;
-	});
-
 	var channel, buffer = [];
 	function startChat(c) {
 		channel = c;
@@ -54,6 +42,23 @@ $(function() {
 
 		channel.emit('message', message);
 	}
+
+	$('.start button').click(function() {
+		server
+			.createChannel()
+			.addErrback(function(e) {
+				alert('Could not create channel, reason: '+"\n\n"+JSON.stringify(e));
+			})
+			.addCallback(function(channel) {
+				startChat(channel);
+			});
+		return false;
+	});
+
+	$('.header a').click(function() {
+		window.location.href = window.location.href.replace(/#.*$/, '');
+		return false;
+	});
 
 	$('.chat .message textarea').keypress(function(e) {
 		if (e.keyCode == 13) {
