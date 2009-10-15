@@ -154,12 +154,11 @@ node.inherits(exports.Request, node.EventEmitter);
 exports.Request.prototype.respond = function(code, response) {
 	this.response = {code: code, response: response};
 
-	var jsonp = this.req.uri.params.callback;
-
 	response = JSON.stringify(response);
-	response = jsonp + '('+response+')';
 
+	var jsonp = this.req.uri.params.callback;
 	if (jsonp) {
+		response = jsonp + '('+response+')';
 		this.res.sendHeader(200, {'Content-Type': 'text/javascript'});
 	} else {
 		this.res.sendHeader(code, {'Content-Type': 'text/javascript'});
