@@ -8,7 +8,7 @@ $(function() {
 		startChat(c);
 	}
 
-	var channel, buffer = [];
+	var channel, buffer = [], user;
 	function startChat(c) {
 		channel = c;
 
@@ -20,12 +20,12 @@ $(function() {
 
 		channel.addListener('message', function(message) {
 			for (i = 0; i < buffer.length; i++) {
-				if (buffer[i] === message) {
+				if (buffer[i] === message.text) {
 					buffer.splice(i, 1);
 					return;
 				}
 			}
-			$('.chat .log').append($('<li/>').text(message));
+			addMessage(message);
 		});
 
 		channel.since = 0;
@@ -33,15 +33,29 @@ $(function() {
 	}
 
 	function submitMessage() {
+		if (!user) {
+			user = prompt('Please enter your name to participate in this chat:');
+			if (!user) {
+				return;
+			}
+		}
+
 		var $message = $('.chat .message textarea');
 		var message = $message.val();
 		$message.val('');
 
-		$('.chat .log').append($('<li/>').text(message));
+		addMessage({user: user, text: message});
 		buffer.push(message);
 
-		channel.emit('message', message);
+		channel.emit('message', {user: user, text: message});
 	}
+
+	function addMessage (message) {
+		var $li = $('<li/>');
+		$li.text(message.text);
+		$li.prepend($('<strong/>').text(message.user+': '));
+		$('.chat .log').append($li);
+	};
 
 	$('.start button').click(function() {
 		server
