@@ -1,6 +1,7 @@
 h1{
 	font-size: 25px;
 	font-family: Arial;
+	color: #51A6DF;
 }
 
 .hidden{
@@ -53,6 +54,8 @@ h1{
 .chat .message{
 	float: left;
 	clear: both;
+	position: fixed;
+	bottom: 20px;
 }
 
 .chat textarea{
