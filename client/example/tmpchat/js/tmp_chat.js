@@ -20,18 +20,27 @@ $(function() {
 		return false;
 	});
 
-	var channel;
+	var channel, buffer = [];
 	function startChat(c) {
 		channel = c;
+
+		window.location.hash = '#'+c.id;
 
 		$('.start').remove();
 		$('.chat').fadeIn();
 		$('.chat input').val(here.source+'#'+channel.id);
 
 		channel.addListener('message', function(message) {
+			for (i = 0; i < buffer.length; i++) {
+				if (buffer[i] === message) {
+					buffer.splice(i, 1);
+					return;
+				}
+			}
 			$('.chat .log').append($('<li/>').text(message));
 		});
 
+		channel.since = 0;
 		channel.listen();
 	}
 
@@ -39,6 +48,10 @@ $(function() {
 		var $message = $('.chat .message textarea');
 		var message = $message.val();
 		$message.val('');
+
+		$('.chat .log').append($('<li/>').text(message));
+		buffer.push(message);
+
 		channel.emit('message', message);
 	}
 
