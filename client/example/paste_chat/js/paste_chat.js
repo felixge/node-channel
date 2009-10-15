@@ -28,18 +28,26 @@ $(function() {
 			addMessage(message);
 		});
 
+		channel.addListener('join', function(message) {
+			addNote(message);
+		});
+
 		channel.since = 0;
 		channel.listen();
+
+		changeUser();
+	}
+
+	function changeUser() {
+		user = prompt('Please enter your name to participate in this chat:');
+		if (!user) {
+			return changeUser();
+		}
+
+		channel.emit('join', {text: user+' has entered the room'});
 	}
 
 	function submitMessage() {
-		if (!user) {
-			user = prompt('Please enter your name to participate in this chat:');
-			if (!user) {
-				return;
-			}
-		}
-
 		var $message = $('.chat .message textarea');
 		var message = $message.val();
 		$message.val('');
@@ -54,6 +62,12 @@ $(function() {
 		var $li = $('<li/>');
 		$li.text(message.text);
 		$li.prepend($('<strong/>').text(message.user+': '));
+		$('.chat .log').append($li);
+	};
+
+	function addNote(note) {
+		var $li = $('<li/>');
+		$li.append($('<em/>').text(note.text));
 		$('.chat .log').append($li);
 	};
 
