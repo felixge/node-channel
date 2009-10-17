@@ -9,8 +9,18 @@ h1{
 }
 
 .chat{
-	position: fixed;
+	float: left;
+}
+
+.chat .left{
+	float: left;
 	padding: 20px;
+	width: 600px;
+}
+
+.chat .right{
+	float: left;
+	width: 170px;
 }
 
 .chat .header{

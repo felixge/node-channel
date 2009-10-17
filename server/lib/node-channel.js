@@ -86,6 +86,10 @@ exports.Server = function() {
 		}
 
 		var id = req.uri.path.substr(1);
+		if (!id) {
+			return request.respond(200, {ok: true, welcome: 'node-channel'});
+		}
+
 		if (!(id in this.channels)) {
 			return request.respond(404, {error: 'Unknown channel: '+JSON.stringify(id)})
 		}

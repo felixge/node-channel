@@ -29,6 +29,9 @@ $(function() {
 		});
 
 		channel.addListener('join', function(message) {
+			var $li = $('<li/>').text(message.user);
+			console.log($('.chat .right ul'), $li, 'fun', message);
+			$('.chat .right ul').append($li);
 			addNote(message);
 		});
 
@@ -44,7 +47,7 @@ $(function() {
 			return changeUser();
 		}
 
-		channel.emit('join', {text: user+' has entered the room'});
+		channel.emit('join', {user: user, text: user+' has entered the room'});
 	}
 
 	function submitMessage() {
