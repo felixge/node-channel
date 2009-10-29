@@ -1,80 +1,80 @@
 h1{
-	font-size: 25px;
-	font-family: Arial;
-	color: #51A6DF;
+    font-size: 25px;
+    font-family: Arial;
+    color: #51A6DF;
 }
 
 .error{color: #f00;}
 
 .hidden{
-	display: none;
+    display: none;
 }
 
 .chat{
-	float: left;
+    float: left;
 }
 
 .chat .left{
-	float: left;
-	padding: 20px;
-	width: 600px;
+    float: left;
+    padding: 20px;
+    width: 600px;
 }
 
 .chat .right{
-	float: left;
-	width: 170px;
+    float: left;
+    width: 170px;
 }
 
 .chat .header{
-	margin: 0 0 10px 0;
-	float: left;
-	clear: both;
+    margin: 0 0 10px 0;
+    float: left;
+    clear: both;
 }
 
 .chat .header a{
-	float: left;
-	clear: both;
-	margin: 0 0 10px 0;
+    float: left;
+    clear: both;
+    margin: 0 0 10px 0;
 }
 
 .chat .header label{
-	clear: left;
-	float: left;
-	margin: 2px 0 0 0;
-	width: 54px;
+    clear: left;
+    float: left;
+    margin: 2px 0 0 0;
+    width: 54px;
 }
 
 .chat .header input{
-	width: 540px;
+    width: 540px;
 }
 
 .chat .header input, .chat .header label{
-	float: left;
+    float: left;
 }
 
 .chat ul{
-	margin: 0 0 10px 0;
-	padding: 0;
-	float: left;
-	clear: both;
+    margin: 0 0 10px 0;
+    padding: 0;
+    float: left;
+    clear: both;
 }
 
 .chat ul li{
-	list-style-type: none;
+    list-style-type: none;
 }
 
 .chat .message{
-	float: left;
-	clear: both;
-	position: fixed;
-	bottom: 20px;
+    float: left;
+    clear: both;
+    position: fixed;
+    bottom: 20px;
 }
 
 .chat textarea{
-	width: 600px;
-	margin: 0 10px 0 0;
+    width: 600px;
+    margin: 0 10px 0 0;
 }
 
 .chat textarea, .chat button{
-	float: left;
+    float: left;
 }
