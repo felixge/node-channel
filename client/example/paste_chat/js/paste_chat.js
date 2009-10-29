@@ -66,12 +66,14 @@ $(function() {
 	}
 
 	function changeUser() {
-		user = prompt('Please enter your name to participate in this chat:');
-		if (!user) {
-			return changeUser();
-		}
+		setTimeout(function() {
+			user = prompt('Please enter your name to participate in this chat:');
+			if (!user) {
+				return changeUser();
+			}
 
-		channel.emit('join', {user: user, text: user+' has entered the room'});
+			channel.emit('join', {user: user, text: user+' has entered the room'});
+		}, 200);
 	}
 
 	function submitMessage() {

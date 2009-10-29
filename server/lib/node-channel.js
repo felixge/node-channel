@@ -25,67 +25,69 @@ exports.Server = function() {
 
 	var self = this;
 	this.httpServer = http.createServer(function(req, res) {
-		self.emit('request', new exports.Request(req, res));
+		var request = new exports.Request(req, res);
+		request
+			.parse()
+			.addErrback(function() {
+				request.respond(500, {error: 'Could not parse request.'});
+			})
+			.addCallback(function() {
+				p(request.form);
+				p('no');
+				self.emit('request', request);
+			});
 	});
 
 	this.addListener('request', function(request) {
-		var req = request.req;
-
-		p(req.uri);
-
-
-		var prefix = req.uri.path.substr(1, 1);
+		var prefix = request.uri.path.substr(1, 1);
 		if (prefix == '_') {
-			request.parts(function(parts) {
-				var data = {};
-				if (parts.data) {
-					try {
-						data = JSON.parse(parts.data);
-					} catch (e) {
-						// @fixme needs to be handled
-					}
+			var data = {};
+			if (request.form.data) {
+				try {
+					data = JSON.parse(request.form.data);
+				} catch (e) {
+					// @fixme needs to be handled
 				}
+			}
 
-				switch (req.uri.path) {
-					case '/_response':
-						var request_id = req.uri.params._request_id;
-						var response = self.responses[request_id];
-						if (response) {
-							request.respond(response.code, response.response);
-						} else {
-							request.respond(404, {error: 
-								'Unknown request_id: '+
-								JSON.stringify(request_id)
-							})
-
-						}
-						break;
-					case '/_create_channel':
-						var uuid = exports.uuid();
-						var channel = self.createChannel(uuid);
-
-						request.respond(200, {
-							ok: true,
-							id: uuid
-						});
-						break;
-					default:
+			switch (request.uri.path) {
+				case '/_response':
+					var request_id = request.uri.params._request_id;
+					var response = self.responses[request_id];
+					if (response) {
+						request.respond(response.code, response.response);
+					} else {
 						request.respond(404, {error: 
-							'Unknown command: '+
-							JSON.stringify(req.uri.path)
+							'Unknown request_id: '+
+							JSON.stringify(request_id)
 						})
-						break;
-				}
 
-				if (data._request_id) {
-					self.responses[data._request_id] = request.response;
-				}
-			});
+					}
+					break;
+				case '/_create_channel':
+					var uuid = exports.uuid();
+					var channel = self.createChannel(uuid);
 
+					request.respond(200, {
+						ok: true,
+						id: uuid
+					});
+					break;
+				default:
+					request.respond(404, {error: 
+						'Unknown command: '+
+						JSON.stringify(req.uri.path)
+					})
+					break;
+			}
+
+			if (data._request_id) {
+				self.responses[data._request_id] = request.response;
+			}
 			return;
 		}
 
-		var id = req.uri.path.substr(1);
+		var id = request.uri.path.substr(1);
 		if (!id) {
 			return request.respond(200, {ok: true, welcome: 'node-channel'});
 		}
@@ -95,7 +97,7 @@ exports.Server = function() {
 		}
 
 		var channel = this.channels[id];
-		if (req.method.toLowerCase() == 'post') {
+		if (request.method === 'post') {
 			this.emit('postEvents', channel, request);
 		} else {
 			this.emit('getEvents', channel, request);
@@ -151,6 +153,10 @@ exports.Request = function(req, res) {
 	this.req = req;
 	this.res = res;
 
+	this.method = this.req.method.toLowerCase();
+	this.uri = this.req.uri;
+	this.form = {};
+
 	this.response = null;
 };
 node.inherits(exports.Request, node.EventEmitter);
@@ -170,6 +176,28 @@ exports.Request.prototype.respond = function(code, response) {
 	
 	this.res.sendBody(response);
 	this.res.finish();
+};
+
+exports.Request.prototype.parse = function() {
+	var promise = new node.Promise();
+
+	if (this.method === 'get') {
+		setTimeout(function() {
+			promise.emitSuccess();
+		});
+		return promise;
+	}
+
+	var self = this, parser = new multipart.parse(this.req);
+	parser
+		.addErrback(function() {
+			promise.emitError();
+		})
+		.addCallback(function(parts) {
+			self.form = parts;
+			promise.emitSuccess();
+		});
+	return promise;
 };
 
 exports.Request.prototype.parts = function(callback) {
