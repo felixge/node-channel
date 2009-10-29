@@ -91,7 +91,7 @@ try {
 			url: options.uri,
 			data: options.data,
 			callbackParameter: 'callback',
-			timeout: this.timeout,
+			timeout: options.timeout || 5000,
 			success: function(r){
 				request.emitSuccess(r);
 			},
@@ -203,6 +203,11 @@ try {
 	nodeChannel.Server.prototype.connectChannel = function(id) {
 		var channel = new nodeChannel.Channel(this, id);
 		return channel;
+	};
+
+	nodeChannel.Server.prototype.request = function(method, uri, options) {
+		options = $.extend({uri: this.uri+uri}, options || {});
+		return nodeChannel.request(method, options);
 	};
 
 	nodeChannel.Channel = function(server, id) {

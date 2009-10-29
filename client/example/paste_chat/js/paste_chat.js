@@ -2,6 +2,30 @@ $(function() {
 	var here = parseUri(window.location.href);
 	var server = $.nodeChannel.server('http://'+here.host+':8001/');
 
+	server.request('get', '/')
+		.addCallback(function() {
+			$('.start button').fadeIn();
+		})
+		.addErrback(function() {
+			var failDogs = [
+				'http://lh3.ggpht.com/SergioAlex76/SO-B3KhnCyI/AAAAAAAAAKs/Kqb-ZxjiD80/fail-dog-ball%5B2%5D.jpg',
+				'http://images.triplem.com.au/2009/05/28/195337/fail-dog-24-600x400.jpg',
+				'http://data.tumblr.com/zcTqHiK8c5mqoszxmemvnwtF_400.jpg',
+				'http://farm3.static.flickr.com/2014/2263874070_55958e6727.jpg',
+				'http://untitled00.files.wordpress.com/2009/03/fail-dog.jpg',
+				'http://farm4.static.flickr.com/3271/2298205761_299e5e7706.jpg',
+				'http://aggregatemadbox.com/bloggregate/wp-content/uploads/2008/03/fail_dogs.jpg'
+			];
+
+			var key = Math.floor(Math.random() * failDogs.length);
+			var $failDog = $('<img />')
+				.attr('src', failDogs[key]);
+			var $error = $('<p class="error"/>')
+				.text('Sorry, but our systems are currently down : (')
+				.add($failDog)
+				.insertAfter('.start button');
+		});
+
 	var channelId = window.location.hash.replace(/\?.*$/, '').substr(1);
 	if (channelId) {
 		var c = server.connectChannel(channelId)

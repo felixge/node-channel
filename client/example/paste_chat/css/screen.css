@@ -4,6 +4,8 @@ h1{
 	color: #51A6DF;
 }
 
+.error{color: #f00;}
+
 .hidden{
 	display: none;
 }
