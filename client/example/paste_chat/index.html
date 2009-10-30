@@ -15,6 +15,10 @@
     <li><em><%=user.name%> has entered the room</em></li>
   </script>
 
+  <script type="text/html" id="leave_message">
+    <li><em><%=user.name%> has left the room</em></li>
+  </script>
+
   <script type="text/html" id="user">
     <li><%=name%></li>
   </script>
@@ -117,6 +121,7 @@
 
   <script type="text/javascript" src="../../dep/jquery.js"></script>
   <script type="text/javascript" src="../../dep/jquery.jsonp.js"></script>
+  <script type="text/javascript" src="../../dep/jquery.cookie.js"></script>
   <script type="text/javascript" src="../../dep/json2.js"></script>
   <script type="text/javascript" src="../../lib/jquery.node-channel.js"></script>
 

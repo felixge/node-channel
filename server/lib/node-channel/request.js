@@ -9,6 +9,7 @@ exports.Request = function(req, res) {
   this.method = this.req.method.toLowerCase();
   this.uri = this.req.uri;
   this.body = {};
+  this.client_id = null;
 
   this.response = null;
 };
@@ -35,6 +36,7 @@ exports.Request.prototype.parse = function() {
   var promise = new node.Promise();
 
   if (this.method === 'get') {
+    this.client_id = this.uri.params._client_id || null;
     setTimeout(function() {
       promise.emitSuccess();
     });
@@ -55,6 +57,7 @@ exports.Request.prototype.parse = function() {
           return promise.emitError();
         }
       }
+      self.client_id = self.body._client_id || null;
       promise.emitSuccess();
     });
   return promise;

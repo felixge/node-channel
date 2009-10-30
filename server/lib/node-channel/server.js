@@ -26,6 +26,12 @@ Server.prototype._handleRequest = function(req, res) {
       request.respond(400, {error: 'Could not parse request.'});
     })
     .addCallback(function() {
+      if (!request.client_id) {
+        return request.respond(400, {
+          error: 'Insane world: no _client_id was given.'}
+        );
+      }
+
       var route = _.detect(self.routes, _.bind(self.router, self, request))[2];
       route.call(self, request);
 
@@ -50,11 +56,16 @@ Server.prototype.routes = [
         history: history
       });
     });
+
+    request.channel.monitor.emit('request', request);
   }],
   ['post', '/:channel-id', function(request) {
-    var events = request.body;
+    var events = request.body.events;
     for (var i = 0; i < events.length; i++) {
       var event = events[i], args = event.args;
+      if (event.args[0].constructor == Object) {
+        node.mixin(event.args[0], {_client_id: request.client_id});
+      }
       args.unshift(event.name);
       request.channel.emit.apply(request.channel, args);
     }
@@ -62,6 +73,8 @@ Server.prototype.routes = [
     request.respond(200, {
       ok: true
     });
+
+    request.channel.monitor.emit('request', request);
   }],
   ['get', '/', function(request) {
     request.respond(200, {ok: true, welcome: 'node-channel'})
@@ -128,5 +141,8 @@ Server.prototype.listen = function(port) {
 
 Server.prototype.createChannel = function(id) {
   var channel = new Channel(id);
-  return this.channels[id] = channel;
+  this.channels[id] = channel;
+
+  this.emit('createChannel', channel);
+  return channel;
 };

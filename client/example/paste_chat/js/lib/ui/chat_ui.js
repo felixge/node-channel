@@ -35,6 +35,7 @@ ChatUi.prototype.modal = function(options) {
       opacity: 0.9 
     }, 
     closeOnClick: false,
+    closeOnEsc: false,
     api: true
   });
 
@@ -110,11 +111,19 @@ ChatUi.prototype.log = function($element) {
 
 ChatUi.prototype.userJoin = function(user) {
   var $user = $(tmpl('user', user));
-  $user.data('user', user);
+  $user.attr('rel', user.client_id);
   this.$users.append($user);
 
   var $joinMessage = $(tmpl('join_message', {user: user}));
   this.log($joinMessage);
+};
+
+ChatUi.prototype.userLeave = function(user) {
+  var $user = this.$users.find('[rel='+user.client_id+']');
+  $user.hide();
+
+  var $leaveMessage = $(tmpl('leave_message', {user: user}));
+  this.log($leaveMessage);
 };
 
 ChatUi.prototype.userMessage = function(message) {

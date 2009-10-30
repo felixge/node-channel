@@ -24,7 +24,10 @@ Chat.prototype.createRoom = function() {
         prompt.close();
         self.bindChannel(channel);
 
-        self.user = new User(prompt.name);
+        self.user = new User({
+          name: prompt.name,
+          _client_id: self.server.options.client_id
+        });
         self.channel.emit('join', {name: prompt.name});
       });
   });
@@ -40,7 +43,10 @@ Chat.prototype.joinRoom = function(id) {
     channel.since = 0;
     self.bindChannel(channel);
 
-    self.user = new User(prompt.name);
+    self.user = new User({
+      name: prompt.name,
+      _client_id: self.server.options.client_id
+    });
     self.channel.emit('join', {name: prompt.name});
   });
 };
@@ -75,6 +81,7 @@ Chat.prototype.bindChannel = function(channel) {
 
   channel
     .addListener('join', _.bind(this._handleJoin, this))
+    .addListener('leave', _.bind(this._handleLeave, this))
     .addListener('message', _.bind(this._handleMessage, this));
 
   channel.monitor
@@ -101,11 +108,26 @@ Chat.prototype.bindUi = function(ui) {
 };
 
 Chat.prototype._handleJoin = function(user) {
-  user = new User(user.name);
+  user = new User(user);
   this.users.push(user);
 
   this.ui.userJoin(user);
   return user;
+};
+
+Chat.prototype._handleLeave = function(leaver) {
+  leaver = _.detect(this.users, function(user) {
+    return user.client_id == leaver._client_id;
+  });
+
+  if (!leaver) {
+    return;
+  }
+
+  this.users = _.reject(this.users, function(user) {
+    return user === leaver;
+  });
+  this.ui.userLeave(leaver);
 };
 
 Chat.prototype._handleMessage = function(message) {
@@ -113,6 +135,5 @@ Chat.prototype._handleMessage = function(message) {
 };
 
 Chat.prototype.send = function(message) {
-  console.log('yeah', message);
   this.channel.emit('message', {user: this.user.name, text: message});
 };

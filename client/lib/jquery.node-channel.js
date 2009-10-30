@@ -146,7 +146,10 @@ try {
 
       var response = nodeChannel.request('get', {
         uri: options.fetch+'/_response',
-        data: {'_request_id': options.data._request_id}
+        data: {
+          _request_id: options.data._request_id,
+          _client_id: options.data._client_id
+        }
       });
       response.addErrback(function(r) {
         requestDone = true;
@@ -169,14 +172,22 @@ try {
     return request;
   };
 
-  nodeChannel.server = function(uri) {
-    var channel = new nodeChannel.Server(uri);
+  nodeChannel.server = function(uri, options) {
+    var channel = new nodeChannel.Server(uri, options);
     return channel;
   };
 
 
-  nodeChannel.Server = function(uri) {
+  nodeChannel.Server = function(uri, options) {
     node.EventEmitter.call(this);
+
+    var defaults = {
+      client_id:  $.cookie('nodeChannel.client_id') || nodeChannel.uuid()
+    };
+    options = $.extend(defaults, options);
+
+    $.cookie('nodeChannel.client_id', options.client_id, {expires: 365});
+    this.options = options;
 
     this.uri = uri.replace(/\/+$/, '');
   };
@@ -185,9 +196,7 @@ try {
   nodeChannel.Server.prototype.createChannel = function() {
     var self = this;
 
-    var request = nodeChannel.request('post', {
-      uri: this.uri+'/_create_channel',
-      data: {},
+    var request = this.request('post', '/_create_channel', {
       fetch: this.uri
     });
 
@@ -210,6 +219,12 @@ try {
 
   nodeChannel.Server.prototype.request = function(method, uri, options) {
     options = $.extend({uri: this.uri+uri}, options || {});
+
+    options.data = $.extend(
+      {_client_id: this.options.client_id},
+      options.data || {}
+    );
+
     return nodeChannel.request(method, options);
   };
 
@@ -242,10 +257,9 @@ try {
       args: args
     };
     var options = {
-      uri: this.server.uri+'/'+this.id,
-      data: [event]
+      data: {events: [event]}
     };
-    var request = nodeChannel.request('post', options);
+    var request = this.server.request('post', '/'+this.id, options);
 
     var self = this;
     request.addCallback(function(r) {
@@ -264,10 +278,9 @@ try {
     this.pause = (pause === undefined) ? this.pause : pause;
 
     var options = {
-      uri: this.server.uri+'/'+this.id,
       data: {since: this.since}
     };
-    var request = nodeChannel.request('get', options);
+    var request = this.server.request('get', '/'+this.id, options);
 
     var self = this;
     request.addCallback(function(r) {
