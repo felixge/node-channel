@@ -26,7 +26,7 @@ Server.prototype._handleRequest = function(req, res) {
       request.respond(400, {error: 'Could not parse request.'});
     })
     .addCallback(function() {
-      if (!request.client_id) {
+      if (!request.client_id && request.uri.path !== '/') {
         return request.respond(400, {
           error: 'Insane world: no _client_id was given.'}
         );
