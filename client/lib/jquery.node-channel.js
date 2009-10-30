@@ -124,7 +124,7 @@ try {
       options.data = $.extend({}, options.data, {'_request_id': nodeChannel.uuid()})
     }
 
-    $('<textarea name="data" />')
+    $('<textarea name="json" />')
       .text(JSON.stringify(options.data))
       .prependTo($form);
 

@@ -8,7 +8,7 @@ exports.Request = function(req, res) {
 
   this.method = this.req.method.toLowerCase();
   this.uri = this.req.uri;
-  this.form = {};
+  this.body = {};
 
   this.response = null;
 };
@@ -47,19 +47,15 @@ exports.Request.prototype.parse = function() {
       promise.emitError();
     })
     .addCallback(function(parts) {
-      self.form = parts;
+      self.body = parts;
+      if ('json' in self.body) {
+        try {
+          self.body = JSON.parse(self.body.json);
+        } catch (e) {
+          return promise.emitError();
+        }
+      }
       promise.emitSuccess();
     });
   return promise;
-};
-
-exports.Request.prototype.parts = function(callback) {
-  if (this.req.method === 'get') {
-    return callback();
-  }
-
-  var parser = new multipart.parse(this.req);
-  parser.addCallback(function(parts) {
-    callback(parts);
-  });
 };
