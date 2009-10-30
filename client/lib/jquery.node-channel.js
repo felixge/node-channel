@@ -93,10 +93,13 @@ try {
       callbackParameter: 'callback',
       timeout: options.timeout || 5000,
       success: function(r){
+        if ('error' in r) {
+          return request.emitError(r.error);
+        }
         request.emitSuccess(r);
       },
       error: function(xOptions, status) {
-        request.emitError(xOptions, status)
+        request.emitError(status, xOptions);
       }
     });
     return request;
@@ -245,11 +248,11 @@ try {
     var request = nodeChannel.request('post', options);
 
     var self = this;
-    request.addListener('success', function(r) {
+    request.addCallback(function(r) {
 
     });
 
-    request.addListener('error', function(r) {
+    request.addErrback(function(r) {
       // Handle
     });
 
@@ -267,7 +270,7 @@ try {
     var request = nodeChannel.request('get', options);
 
     var self = this;
-    request.addListener('success', function(r) {
+    request.addCallback(function(r) {
       self._emitHistory(r.history);
 
       setTimeout(function() {
@@ -275,8 +278,9 @@ try {
       }, self.pause);
     });
 
-    request.addListener('error', function(xOptions, status) {
+    request.addErrback(function(status) {
       if (status != 'timeout') {
+        self.monitor.emit('error', {error: status});
         return;
       }
 

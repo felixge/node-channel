@@ -1,13 +1,27 @@
+body, html{font-family: Arial; margin: 0; padding: 0;}
+
 h1{
     font-size: 25px;
-    font-family: Arial;
     color: #51A6DF;
+}
+
+h2{
+  background-color: #51A6DF;
+  color: #fff;
+  font-size: 15px;
+  padding: 2px 6px;
+  font-weight: normal;
+  margin: 16px 0 4px 0;
 }
 
 .error{color: #f00;}
 
 .hidden{
     display: none;
+}
+
+.home{
+  margin: 0 0 0 10px;
 }
 
 .chat{
@@ -21,39 +35,32 @@ h1{
 }
 
 .chat .right{
+    top: 0;
+    position: fixed;
     float: left;
-    width: 170px;
+    left: 640px;
+    width: 250px;
 }
 
 .chat .header{
-    margin: 0 0 10px 0;
+    position: fixed;
+    top: 0;
+    background-color: #fff;
     float: left;
     clear: both;
+}
+
+.chat .header h1{
+  float: left;
 }
 
 .chat .header a{
     float: left;
-    clear: both;
-    margin: 0 0 10px 0;
-}
-
-.chat .header label{
-    clear: left;
-    float: left;
-    margin: 2px 0 0 0;
-    width: 54px;
-}
-
-.chat .header input{
-    width: 540px;
-}
-
-.chat .header input, .chat .header label{
-    float: left;
+    margin: 25px 0 0 10px;
 }
 
 .chat ul{
-    margin: 0 0 10px 0;
+    margin: 50px 0 75px 0;
     padding: 0;
     float: left;
     clear: both;
@@ -67,7 +74,9 @@ h1{
     float: left;
     clear: both;
     position: fixed;
-    bottom: 20px;
+    background-color: #fff;
+    padding: 10px 0 20px 0;
+    bottom: 0;
 }
 
 .chat textarea{
@@ -77,4 +86,55 @@ h1{
 
 .chat textarea, .chat button{
     float: left;
+}
+
+.right ul{
+  padding: 0 0 0 6px;
+  margin: 0;
+}
+
+.right ul li{
+  margin: 0 0 2px 0;
+  font-size: 14px;
+}
+
+.right a{
+  font-size: 12px;
+}
+
+.right > p{
+  float: left;
+  clear: both;
+  margin: 5px 0 0 5px;
+}
+
+
+.modal{ 
+  background-color:#fff; 
+  display:none; 
+  width:350px; 
+  padding:15px; 
+  text-align:left; 
+  border:2px solid #333; 
+
+  opacity:0.8; 
+  -moz-border-radius:6px; 
+  -webkit-border-radius:6px; 
+  -moz-box-shadow: 0 0 50px #ccc; 
+  -webkit-box-shadow: 0 0 50px #ccc; 
+}
+
+.join_modal input{
+  width: 160px;
+}
+
+.join_modal span{
+  display: block;
+  line-height: 20px;
+  text-align: center;
+  background: no-repeat url('img/ajax-spinner.gif') right center;
+}
+
+.join_modal span.error{
+  background: none;
 }

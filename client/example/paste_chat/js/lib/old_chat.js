@@ -112,11 +112,6 @@ $(function() {
     return false;
   });
 
-  $('.header a').click(function() {
-    window.location.href = window.location.href.replace(/#.*$/, '');
-    return false;
-  });
-
   $('.chat .message textarea').keypress(function(e) {
     if (e.keyCode == 13) {
       submitMessage();

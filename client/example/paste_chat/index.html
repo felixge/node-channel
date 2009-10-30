@@ -2,46 +2,127 @@
    "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-    <title>pastechat.com</title>
-    <link type="text/css" rel="stylesheet" href="css/screen.css">
+  <title>pastechat.com</title>
+  <link type="text/css" rel="stylesheet" href="css/screen.css">
 
+  <script type="text/html" id="message">
+    <li><strong><%=user%>:</strong> <%=text%></li>
+  </script>
+
+  <script type="text/html" id="join_message">
+    <li><em><%=user.name%> has entered the room</em></li>
+  </script>
+
+  <script type="text/html" id="user">
+    <li><%=name%></li>
+  </script>
+
+  <script type="text/html" id="faildog">
+    <p class="error">Sorry, but our systems are currently down : (</p>
+    <img src="<%=faildog%>">
+  </script>
+
+  <script type="text/html" id="join_modal">
+    <div class="modal join_modal">
+      <form>
+        <label for="chat-name">Your Name:</label>
+        <input type="text" id="chat-name">
+        <button><%=button%></button>
+      </form>
+      <span style="display: none;">Joining Room</span>
+    </div>
+  </script>
+
+  <script type="text/html" id="error_modal">
+    <div class="modal error_modal">
+      <span class="error"><strong>Error:</strong> <%= error %></span>
+    </div>
+  </script>
+
+  <script type="text/html" id="chat">
+    <div class="chat">
+      <div class="left">
+        <div class="header">
+          <h1>Your room</h1>
+          <a href="#edit">edit</a>
+        </div>
+        <ul class="log">
+          <!-- <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li>
+          <li><strong>Felix:</strong> I am saying hello</li>
+          <li><strong>Tim:</strong> would love to join</li> -->
+        </ul>
+        <div class="message">
+          <textarea name="message"></textarea>
+          <button>Send Message</button>
+        </div>
+      </div>
+      <div class="right">
+        <h2>Attending</h2>
+        <ul>
+          <!-- <li>Felix <a href="#edit">rename</a></li>
+          <li>Tim</li> -->
+        </ul>
+        <p><a href="#invite">Invite People</a> <a href="#invite">Get your own Room!</a></p>
+      </div>
+    </div>
+  </script>
 </head>
 <body>
-    <div class="start">
-        <h1>pastchat.com</h1>
-        <p>Temporary chat rooms, whenever you need them.</p>
-        <button class="hidden">Create Room</button>
-    </div>
-    <div class="chat hidden">
-        <div class="left">
-            <div class="header">
-                <a href="#">Create your own tempory chat</a>
-                <label>Url:</label>
-                <input type="text">
-            </div>
-            <ul class="log">
-            </ul>
-            <div class="message">
-                <textarea name="message"></textarea>
+  <div class="home">
+    <h1>pastechat.com</h1>
+    <p>Temporary chat rooms, whenever you need them.</p>
+    <button class="hidden">Create Room</button>
+  </div>
 
-                <button>Send Message</button>
-            </div>
-        </div>
-        <div class="right">
-            <h2>Users</h2>
-            <ul>
-            </ul>
-        </div>
-    </div>
+  <script type="text/javascript" src="../../dep/jquery.js"></script>
+  <script type="text/javascript" src="../../dep/jquery.jsonp.js"></script>
+  <script type="text/javascript" src="../../dep/json2.js"></script>
+  <script type="text/javascript" src="../../lib/jquery.node-channel.js"></script>
 
-    <script type="text/javascript" src="../../dep/jquery.js"></script>
-    <script type="text/javascript" src="../../dep/jquery.jsonp.js"></script>
-    <script type="text/javascript" src="../../dep/json2.js"></script>
+  <script type="text/javascript" src="js/dep/misc.js"></script>
+  <script type="text/javascript" src="js/dep/jquery.tools.js"></script>
+  <script type="text/javascript" src="js/dep/underscore.js"></script>
 
-    <script type="text/javascript" src="../../lib/jquery.node-channel.js"></script>
-    <script type="text/javascript" src="js/misc.js"></script>
-    <script type="text/javascript" src="js/paste_chat.js"></script>
+  <script type="text/javascript" src="js/lib/home.js"></script>
+  <script type="text/javascript" src="js/lib/chat.js"></script>
+  <script type="text/javascript" src="js/lib/user.js"></script>
+
+  <script type="text/javascript" src="js/lib/ui/home_ui.js"></script>
+  <script type="text/javascript" src="js/lib/ui/chat_ui.js"></script>
 </body>
 </html>

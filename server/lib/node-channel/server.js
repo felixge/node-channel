@@ -39,7 +39,7 @@ Server.prototype._handleRequest = function(req, res) {
 Server.prototype.routes = [
   ['get', '/:channel-id', function(request) {
     var since = parseInt(request.uri.params.since || 0, 10);
-    channel.onHistory(since, function(history) {
+    request.channel.onHistory(since, function(history) {
       request.respond(200, {
         ok: true,
         since: since,
@@ -52,7 +52,7 @@ Server.prototype.routes = [
     for (var i = 0; i < events.length; i++) {
       var event = events[i], args = event.args;
       args.unshift(event.name);
-      channel.emit.apply(channel, args);
+      request.channel.emit.apply(request.channel, args);
     }
 
     request.respond(200, {
@@ -65,13 +65,13 @@ Server.prototype.routes = [
   ['get', '/_response', function(request) {
     var request_id = request.uri.params._request_id;
     if (!request_id) {
-      return request.respond(400, {error: 'No ?_request_id was given'});
+      return request.respond(400, {error: 'No "_request_id" was given'});
     }
 
     var response = this.responses[request_id];
     if (!response) {
       return request.respond(404, {
-        error: 'Unknown ?_request_id: '+JSON.stringify(request_id)
+        error: 'Unknown "_request_id": '+JSON.stringify(request_id)
       });
     }
 
@@ -102,9 +102,11 @@ Server.prototype.router = function(request, route) {
 
   if (url == '/:channel-id') {
     var id = request.uri.path.substr(1);
-    if (!(id in this.channels)) {
-      return false;
+    if (id in this.channels) {
+      request.channel = this.channels[id];
+      return true;
     }
+    return false;
   }
 
   if (typeof url == 'string' && request.uri.path !== url) {
