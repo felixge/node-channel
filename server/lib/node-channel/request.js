@@ -1,7 +1,7 @@
 var multipart = require('/multipart.js');
 
 exports.Request = function(req, res) {
-  node.EventEmitter.call(this);
+  process.EventEmitter.call(this);
 
   this.req = req;
   this.res = res;
@@ -13,7 +13,7 @@ exports.Request = function(req, res) {
 
   this.response = null;
 };
-node.inherits(exports.Request, node.EventEmitter);
+process.inherits(exports.Request, process.EventEmitter);
 
 exports.Request.prototype.respond = function(code, response) {
   this.response = {code: code, response: response};
@@ -33,7 +33,7 @@ exports.Request.prototype.respond = function(code, response) {
 };
 
 exports.Request.prototype.parse = function() {
-  var promise = new node.Promise();
+  var promise = new process.Promise();
 
   if (this.method === 'get') {
     this.client_id = this.uri.params._client_id || null;

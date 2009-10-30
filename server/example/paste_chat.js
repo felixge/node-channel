@@ -1,4 +1,4 @@
-node.mixin(require('/sys.js'));
+process.mixin(require('/sys.js'));
 
 var nodeChannel = require('../lib/node-channel.js');
 var _ = require('/dep/underscore.js');

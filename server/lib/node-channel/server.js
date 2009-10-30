@@ -8,14 +8,14 @@ var Request = require('request.js').Request;
 var Channel = require('channel.js').Channel;
 
 var Server = exports.Server = function() {
-  node.EventEmitter.call(this);
+  process.EventEmitter.call(this);
 
   this.channels = {};
   this.responses = {};
 
   this.httpServer = http.createServer(_.bind(this._handleRequest, this));
 }
-node.inherits(Server, node.EventEmitter);
+process.inherits(Server, process.EventEmitter);
 
 Server.prototype._handleRequest = function(req, res) {
   var request = new Request(req, res), self = this;
@@ -64,7 +64,7 @@ Server.prototype.routes = [
     for (var i = 0; i < events.length; i++) {
       var event = events[i], args = event.args;
       if (event.args[0].constructor == Object) {
-        node.mixin(event.args[0], {_client_id: request.client_id});
+        process.mixin(event.args[0], {_client_id: request.client_id});
       }
       args.unshift(event.name);
       request.channel.emit.apply(request.channel, args);

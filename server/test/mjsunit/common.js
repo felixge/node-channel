@@ -1,2 +1,2 @@
-node.libraryPaths.unshift(node.path.dirname(__filename)+'/../..');
+process.libraryPaths.unshift(process.path.dirname(__filename)+'/../..');
 include('/utils.js');

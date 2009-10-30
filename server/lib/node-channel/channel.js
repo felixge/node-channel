@@ -1,13 +1,13 @@
 exports.Channel = function(id) {
-  node.EventEmitter.call(this);
+  process.EventEmitter.call(this);
 
   this.id = id;
 
-  this.monitor = new node.EventEmitter();
+  this.monitor = new process.EventEmitter();
   this.ignores = ['newListener'];
   this.history = [];
 };
-node.inherits(exports.Channel, node.EventEmitter);
+process.inherits(exports.Channel, process.EventEmitter);
 
 exports.Channel.prototype.seek = function(since) {
   if (!since) {
@@ -50,7 +50,7 @@ exports.Channel.prototype.onHistory = function(since, callback) {
 
 exports.Channel.prototype.emit = function() {
   var args = Array.prototype.slice.call(arguments);
-  node.EventEmitter.prototype.emit.apply(this, args);
+  process.EventEmitter.prototype.emit.apply(this, args);
 
   var name = args.shift();
   if (this.ignores.indexOf(name) > -1) {
