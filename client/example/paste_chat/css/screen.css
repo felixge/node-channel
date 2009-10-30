@@ -128,13 +128,13 @@ h2{
   width: 160px;
 }
 
-.join_modal span{
+.modal span{
   display: block;
   line-height: 20px;
   text-align: center;
   background: no-repeat url('img/ajax-spinner.gif') right center;
 }
 
-.join_modal span.error{
+.modal span.error{
   background: none;
 }

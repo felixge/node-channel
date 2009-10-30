@@ -30,6 +30,44 @@ Chat.prototype.createRoom = function() {
   });
 };
 
+Chat.prototype.joinRoom = function(id) {
+  var prompt = this.ui.joinModal('Join Room'), self = this;
+
+  prompt.addCallback(function(prompt) {
+    prompt.close();
+
+    var channel = self.server.connectChannel(id);
+    channel.since = 0;
+    self.bindChannel(channel);
+
+    self.user = new User(prompt.name);
+    self.channel.emit('join', {name: prompt.name});
+  });
+};
+
+Chat.prototype.connectRoom = function(id) {
+  var promise = new node.Promise();
+
+  var modal = this.ui.modal({
+    type: 'wait',
+    vars: {text: 'Looking for chat room ..'}
+  });
+
+  var request = this.server.request('get', '/'+id, {_exists: true}), self = this;
+  request
+    .addCallback(function() {
+      modal.overlay.close();
+      promise.emitSuccess();
+      self.joinRoom(id);
+    })
+    .addErrback(function() {
+      modal.overlay.close();
+      promise.emitError();
+    });
+
+  return promise;
+};
+
 Chat.prototype.bindChannel = function(channel) {
   var self = this;
 

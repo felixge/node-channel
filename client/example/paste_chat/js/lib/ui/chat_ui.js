@@ -126,3 +126,7 @@ ChatUi.prototype._emitMessage = function() {
   this.emit('message', this.$message.val());
   this.$message.val('');
 };
+
+ChatUi.prototype.hide = function() {
+  this.$chat.hide();
+};

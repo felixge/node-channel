@@ -28,9 +28,12 @@ HomeUi.prototype.bindEvents = function() {
   });
 };
 
-HomeUi.prototype.showFaildog = function() {
+HomeUi.prototype.showFaildog = function(error) {
   var random = Math.floor(Math.random() * this.faildogs.length);
-  var $faildog = $(tmpl('faildog', {faildog: this.faildogs[random]}))
+  var $faildog = $(tmpl('faildog', {
+    error: error,
+    faildog: this.faildogs[random]
+  }))
 
   $faildog.insertAfter(this.$button);
 };
@@ -41,4 +44,8 @@ HomeUi.prototype.showButton = function() {
 
 HomeUi.prototype.hide = function() {
   this.$home.hide();
+};
+
+HomeUi.prototype.show = function() {
+  this.$home.fadeIn();
 };

@@ -20,7 +20,7 @@
   </script>
 
   <script type="text/html" id="faildog">
-    <p class="error">Sorry, but our systems are currently down : (</p>
+    <p class="error"><%= error %></p>
     <img src="<%=faildog%>">
   </script>
 
@@ -38,6 +38,12 @@
   <script type="text/html" id="error_modal">
     <div class="modal error_modal">
       <span class="error"><strong>Error:</strong> <%= error %></span>
+    </div>
+  </script>
+
+  <script type="text/html" id="wait_modal">
+    <div class="modal wait_modal">
+      <span><%= text %></span>
     </div>
   </script>
 

@@ -38,6 +38,10 @@ Server.prototype._handleRequest = function(req, res) {
 
 Server.prototype.routes = [
   ['get', '/:channel-id', function(request) {
+    if (request.uri.params._exists) {
+      return request.respond(200, {ok: true});
+    }
+
     var since = parseInt(request.uri.params.since || 0, 10);
     request.channel.onHistory(since, function(history) {
       request.respond(200, {

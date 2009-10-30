@@ -24,19 +24,40 @@ Home.prototype.bindEvents = function() {
   });
 };
 
-
 Home.prototype.testConnectivity = function() {
   var self = this;
 
   // Check if our node.js server is only
   this.server.request('get', '/')
     .addCallback(function() {
-      self.ui.showButton();
+      var channelId = window.location.hash.replace(/\?.*$/, '').substr(1);
+      if (!channelId) {
+        return self.ui.showButton();
+      }
+
+      self.connectChannel(channelId);
     })
     .addErrback(function() {
-      self.ui.showFaildog();
+      self.ui.showFaildog('Sorry, but our systems are currently down : (');
     });
 };
+
+Home.prototype.connectChannel = function(id) {
+  this.ui.hide();
+
+  var ui = new ChatUi(this.ui);
+  var chat = new Chat(ui, this);
+
+  var connect = chat.connectRoom(id), self = this;
+  connect.addErrback(function() {
+    ui.hide();
+    self.ui.show();
+    self.ui.showButton();
+    self.ui.showFaildog(
+      'Sorry, but the room you tried to join no longer exists : ('
+    );
+  });
+}
 
 $(function() {
   var ui = new HomeUi(document);
@@ -44,5 +65,5 @@ $(function() {
 
   home.testConnectivity();
 
-  ui.emit('button.click');
+  // ui.emit('button.click');
 });
