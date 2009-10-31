@@ -7,9 +7,10 @@ var uuid = require('misc.js').uuid;
 var Request = require('request.js').Request;
 var Channel = require('channel.js').Channel;
 
-var Server = exports.Server = function() {
+var Server = exports.Server = function(options) {
   process.EventEmitter.call(this);
 
+  this.options = options;
   this.channels = {};
   this.responses = {};
 
@@ -18,6 +19,12 @@ var Server = exports.Server = function() {
 process.inherits(Server, process.EventEmitter);
 
 Server.prototype._handleRequest = function(req, res) {
+  var prefixed = this.options.proxyPrefix
+                 && req.uri.path.indexOf(this.options.proxyPrefix) === 0;
+
+  if (prefixed) {
+    req.uri.path = req.uri.path.substr(this.options.proxyPrefix.length);
+  }
   var request = new Request(req, res), self = this;
 
   request

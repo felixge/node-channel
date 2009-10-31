@@ -1,12 +1,13 @@
 process.mixin(require('/sys.js'));
 
+var config = require('config.js');
 var nodeChannel = require('../lib/node-channel.js');
 var _ = require('/dep/underscore.js');
 
 function PasteChat() {
   this.clientInterval = 6 * 1000;
   this.channels = {};
-  this.bindServer(nodeChannel.createServer());
+  this.bindServer(nodeChannel.createServer(config));
 }
 
 PasteChat.prototype.bindServer = function(server) {

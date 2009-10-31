@@ -32,7 +32,7 @@ exports.Request.prototype.respond = function(code, response) {
       'Content-Length': response.length
     });
   }
-  
+
   this.res.sendBody(response);
   this.res.finish();
 };
