@@ -1,11 +1,11 @@
-var http = require('/http.js');
-var multipart = require('/multipart.js');
-var utils = require('/utils.js');
+var http = require('http');
+var multipart = require('multipart');
+var utils = require('utils');
 
-var _ = require('/dep/underscore.js');
-var uuid = require('misc.js').uuid;
-var Request = require('request.js').Request;
-var Channel = require('channel.js').Channel;
+var _ = require('dep/underscore');
+var uuid = require('./misc').uuid;
+var Request = require('./request').Request;
+var Channel = require('./channel').Channel;
 
 var Server = exports.Server = function(options) {
   process.EventEmitter.call(this);

@@ -1,3 +1,3 @@
-include('/common.js');
+include('/common');
 
-var nodeHub = require('/lib/node-hub.js');
+var nodeHub = require('lib/node-hub');

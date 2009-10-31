@@ -1,4 +1,4 @@
-var multipart = require('/multipart.js');
+var multipart = require('multipart');
 
 exports.Request = function(req, res) {
   process.EventEmitter.call(this);

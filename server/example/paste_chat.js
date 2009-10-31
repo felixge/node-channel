@@ -1,13 +1,13 @@
-process.mixin(require('/sys.js'));
+process.mixin(require('sys'));
 
 // try {
-//   var config = require('config.js');
+//   var config = require('config');
 // } catch (e) {
   var config = {};
 // }
 
-var nodeChannel = require('../lib/node-channel.js');
-var _ = require('/dep/underscore.js');
+var nodeChannel = require('./../lib/node-channel');
+var _ = require('dep/underscore');
 
 function PasteChat() {
   this.clientInterval = 6 * 1000;

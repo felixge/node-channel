@@ -1,6 +1,7 @@
-require.paths.unshift(process.path.join(process.path.dirname(__filename), '..'));
+var path = require('path');
+require.paths.unshift(path.join(path.dirname(__filename), '..'));
 
-var Server = require('node-channel/server.js').Server;
+var Server = require('lib/node-channel/server').Server;
 exports.createServer = function(options) {
   return new Server(options);
 };
