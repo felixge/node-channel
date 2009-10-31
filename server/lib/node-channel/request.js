@@ -35,15 +35,54 @@ exports.Request.prototype.respond = function(code, response) {
 };
 
 exports.Request.prototype.parse = function() {
-  var promise = new process.Promise();
-
   if (this.method === 'get') {
+    var promise = new process.Promise();
     this.client_id = this.uri.params._client_id || null;
     setTimeout(function() {
       promise.emitSuccess();
     });
     return promise;
   }
+
+  if (this.req.headers['content-type'].match(/form-urlencoded/)) {
+    return this.parseUrlencoded();
+  }
+
+  return this.parseMultipart();
+};
+
+function decode (s) {
+  return decodeURIComponent(s.replace(/\+/g, ' '));
+}
+
+exports.Request.prototype.parseUrlencoded = function() {
+  var promise = new process.Promise();
+
+  var body = '', self = this;
+  this.req
+    .addListener('body', function(chunk) {
+      body = body + chunk || '';
+    })
+    .addListener('complete', function() {
+      var parts = body.split('&');
+      for (var j = 0; j < parts.length; j++) {
+        var i = parts[j].indexOf('=');
+        if (i < 0) continue;
+        try {
+          var key = decode(parts[j].slice(0,i))
+          var value = decode(parts[j].slice(i+1));
+          self.body[key] = value;
+        } catch (e) {
+          continue;
+        }
+      }
+      self.extractBody(promise);
+    });
+  return promise;
+}
+
+exports.Request.prototype.parseMultipart = function() {
+  var promise = new process.Promise();
 
   var self = this, parser = new multipart.parse(this.req);
   parser
@@ -52,15 +91,19 @@ exports.Request.prototype.parse = function() {
     })
     .addCallback(function(parts) {
       self.body = parts;
-      if ('json' in self.body) {
-        try {
-          self.body = JSON.parse(self.body.json);
-        } catch (e) {
-          return promise.emitError();
-        }
-      }
-      self.client_id = self.body._client_id || null;
-      promise.emitSuccess();
+      self.extractBody(promise);
     });
   return promise;
 };
+
+exports.Request.prototype.extractBody = function(promise) {
+  if ('json' in this.body) {
+    try {
+      this.body = JSON.parse(this.body.json);
+    } catch (e) {
+      return promise.emitError();
+    }
+  }
+  this.client_id = this.body._client_id || null;
+  promise.emitSuccess();
+}

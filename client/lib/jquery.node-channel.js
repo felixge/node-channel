@@ -76,11 +76,36 @@ try {
   };
 
   nodeChannel.request = function(method, options) {
-    if (method == 'get') {
-      return nodeChannel._jsonp(options);
-    } else {
-      return nodeChannel._iframe(method, options);
+    // Handle cross-domain requests
+    if (options.uri.substr(0, 1) != '/') {
+      if (method == 'get') {
+        return nodeChannel._jsonp(options);
+      } else {
+        return nodeChannel._iframe(method, options);
+      }
     }
+
+    var promise = new node.Promise();
+    $.ajax({
+      type: method,
+      data: (method == 'get')
+        ? options.data
+        : {json: JSON.stringify(options.data)},
+      url: options.uri,
+      timeout: options.timeout || 5000,
+      dataType: 'json',
+      success: function(r) {
+        if ('error' in r) {
+          return request.emitError(r.error);
+        }
+        promise.emitSuccess(r);
+      },
+      error: function(xhr, status) {
+        promise.emitError(status);
+      }
+    });
+
+    return promise;
   };
 
   nodeChannel._jsonp = function(options) {

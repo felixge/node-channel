@@ -49,8 +49,6 @@ PasteChat.prototype._checkAlive = function(channel, user) {
   var now = (+new Date());
       lastSeen = (now - user.lastSeen);
 
-  p(user.name+' was last seen '+Math.floor(lastSeen/1000)+' seconds ago ...');
-
   if (lastSeen > (this.clientInterval * 2)) {
     delete(channel.users[user._client_id]);
     clearInterval(user.timer);

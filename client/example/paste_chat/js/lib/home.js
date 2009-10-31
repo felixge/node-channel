@@ -2,15 +2,10 @@ function Home(ui) {
   this.ui = ui;
   this.server = null;
   this.chat = null;
+  this.config = {};
 
-  this.init();
   this.bindEvents();
 }
-
-Home.prototype.init = function() {
-  var here = parseUri(window.location.href);
-  this.server = $.nodeChannel.server('http://'+here.host+':8001/');
-};
 
 Home.prototype.bindEvents = function() {
   var self = this;
@@ -24,8 +19,32 @@ Home.prototype.bindEvents = function() {
   });
 };
 
+Home.prototype.loadConfig = function() {
+  var here = parseUri(window.location.href);
+  var defaults = {
+    server: 'http://'+here.host+':8001/'
+  };
+
+  var self = this;
+  $.ajax({
+    url: 'config.js',
+    dataType: 'json',
+    complete: function() {
+      self.testConnectivity();
+    },
+    success: function(config) {
+      self.config = $.extend(defaults, config);
+    },
+    error: function() {
+      self.config = $.extend(defaults, config);
+    }
+  })
+};
+
 Home.prototype.testConnectivity = function() {
   var self = this;
+
+  this.server = $.nodeChannel.server(this.config.server);
 
   // Check if our node.js server is only
   this.server.request('get', '/')
@@ -63,7 +82,6 @@ $(function() {
   var ui = new HomeUi(document);
   var home = new Home(ui);
 
-  home.testConnectivity();
-
+  home.loadConfig();
   // ui.emit('button.click');
 });
