@@ -27,7 +27,10 @@ exports.Request.prototype.respond = function(code, response) {
     response = jsonp + '('+response+')';
     this.res.sendHeader(200, {'Content-Type': 'text/javascript'});
   } else {
-    this.res.sendHeader(code, {'Content-Type': 'text/javascript'});
+    this.res.sendHeader(code, {
+      'Content-Type': 'text/javascript',
+      'Content-Length': response.length
+    });
   }
   
   this.res.sendBody(response);
