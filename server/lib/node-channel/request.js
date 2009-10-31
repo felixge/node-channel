@@ -6,6 +6,8 @@ exports.Request = function(req, res) {
   this.req = req;
   this.res = res;
 
+  this.req.setBodyEncoding('utf8');
+
   this.method = this.req.method.toLowerCase();
   this.uri = this.req.uri;
   this.body = {};
