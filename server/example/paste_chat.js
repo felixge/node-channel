@@ -1,7 +1,7 @@
 process.mixin(require('sys'));
 
 try {
-  var config = require('config');
+  var config = require('./config');
 } catch (e) {
   var config = {};
 }
