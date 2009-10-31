@@ -1,11 +1,10 @@
 process.mixin(require('sys'));
 
-// try {
-//   var config = require('config');
-// } catch (e) {
+try {
+  var config = require('config');
+} catch (e) {
   var config = {};
-// }
-
+}
 var nodeChannel = require('./../lib/node-channel');
 var _ = require('dep/underscore');
 
