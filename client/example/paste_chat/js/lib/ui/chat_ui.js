@@ -106,7 +106,18 @@ ChatUi.prototype.bindEvents = function() {
 };
 
 ChatUi.prototype.log = function($element) {
+  var html = $('html')[0],
+      current = Math.max(html.scrollTop, document.body.scrollTop),
+      oldMax = html.scrollHeight - html.clientHeight;
+
   this.$log.append($element);
+
+  var newMax = html.scrollHeight - html.clientHeight;
+
+  if (current >= oldMax) {
+    html.scrollTop = newMax;
+    document.body.scrollTop = newMax;
+  }
 };
 
 ChatUi.prototype.userJoin = function(user) {
