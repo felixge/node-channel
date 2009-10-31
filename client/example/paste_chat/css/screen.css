@@ -48,6 +48,7 @@ h2{
     background-color: #fff;
     float: left;
     clear: both;
+    width: 620px;
 }
 
 .chat .header h1{
