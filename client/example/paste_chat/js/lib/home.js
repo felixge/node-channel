@@ -36,7 +36,7 @@ Home.prototype.loadConfig = function() {
       self.config = $.extend(defaults, config);
     },
     error: function() {
-      self.config = $.extend(defaults, config);
+      self.config = defaults;
     }
   })
 };
