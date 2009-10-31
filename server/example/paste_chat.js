@@ -1,6 +1,11 @@
 process.mixin(require('/sys.js'));
 
-var config = require('config.js');
+// try {
+//   var config = require('config.js');
+// } catch (e) {
+  var config = {};
+// }
+
 var nodeChannel = require('../lib/node-channel.js');
 var _ = require('/dep/underscore.js');
 
