@@ -3,30 +3,62 @@ process.mixin(require('/sys.js'));
 var nodeChannel = require('../lib/node-channel.js');
 var _ = require('/dep/underscore.js');
 
-var server = nodeChannel.createServer();
+function PasteChat() {
+  this.clientInterval = 6 * 1000;
+  this.channels = {};
+  this.bindServer(nodeChannel.createServer());
+}
 
-server.addListener('createChannel', function(channel) {
-  channel.addListener('join', function() {
-      for (var i = 0; i < 30; i++) {
-        channel.emit('message', {user: 'ROOM', text: 'Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello '+i});
-      }
-  });
+PasteChat.prototype.bindServer = function(server) {
+  server.addListener('createChannel', _.bind(this.bindChannel, this));
+  this.server = server;
+};
 
-  var clients = {};
-  channel.monitor.addListener('request', function(request) {
-    clients[request.client_id] = Math.floor((+new Date()) / 1000);
-  });
+PasteChat.prototype.bindChannel = function(channel) {
+  channel.users = {};
+  channel.addListener('join', _.bind(this.handleJoin, this, channel));
+  channel.monitor.addListener('request', _.bind(this.handleRequest, this, channel));
 
-  setInterval(function() {
-    var now = Math.floor((+new Date()) / 1000);
-    for (var clientId in clients) {
-      var lastSeen = (now - clients[clientId])
-      if (lastSeen > 10) {
-        delete(clients[clientId]);
-        channel.emit('leave', {_client_id: clientId});
-      }
-    }
-  }, 1 * 1000);
-});
+  this.channels[channel.id] = channel;
+};
 
-server.listen(8001);
+PasteChat.prototype.handleJoin = function(channel, user) {
+  // This client was already connected as a different user, kick out the old one
+  if (channel.users[user._client_id]) {
+    channel.emit('leave', channel.users[user._client_id])
+  }
+
+  channel.users[user._client_id] = user;
+
+  user.lastSeen = (+new Date());
+  user.timer = setInterval(
+    _.bind(this._checkAlive, this, channel, user),
+    1 * 1000
+  );
+};
+
+PasteChat.prototype.handleRequest = function(channel, request) {
+  if (request.client_id in channel.users) {
+    channel.users[request.client_id].lastSeen = (+new Date());
+  }
+}
+
+// Kick out any user who's client has not been active for 2 poll intervals
+PasteChat.prototype._checkAlive = function(channel, user) {
+  var now = (+new Date());
+      lastSeen = (now - user.lastSeen);
+
+  p(user.name+' was last seen '+Math.floor(lastSeen/1000)+' seconds ago ...');
+
+  if (lastSeen > (this.clientInterval * 2)) {
+    delete(channel.users[user._client_id]);
+    channel.emit('leave', user);
+  }
+};
+
+PasteChat.prototype.start = function(port) {
+  this.server.listen(port);
+};
+
+var chat = new PasteChat();
+chat.start(8001);
