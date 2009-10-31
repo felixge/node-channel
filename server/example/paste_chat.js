@@ -25,6 +25,7 @@ PasteChat.prototype.bindChannel = function(channel) {
 PasteChat.prototype.handleJoin = function(channel, user) {
   // This client was already connected as a different user, kick out the old one
   if (channel.users[user._client_id]) {
+    clearInterval(channel.users[user._client_id].timer);
     channel.emit('leave', channel.users[user._client_id])
   }
 
@@ -52,6 +53,7 @@ PasteChat.prototype._checkAlive = function(channel, user) {
 
   if (lastSeen > (this.clientInterval * 2)) {
     delete(channel.users[user._client_id]);
+    clearInterval(user.timer);
     channel.emit('leave', user);
   }
 };
