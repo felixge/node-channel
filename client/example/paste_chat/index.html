@@ -57,6 +57,16 @@
     </div>
   </script>
 
+  <script type="text/html" id="invite_modal">
+    <div class="modal invite_modal">
+      <form>
+        <label for="url">Copy &amp; Paste:</label>
+        <input type="text" id="url">
+        <button>Close</button>
+      </form>
+    </div>
+  </script>
+
   <script type="text/html" id="error_modal">
     <div class="modal error_modal">
       <span class="error"><strong>Error:</strong> <%= error %></span>
@@ -87,7 +97,7 @@
         <h2>Attending</h2>
         <ul>
         </ul>
-        <p><a href="#invite">Invite People</a> <a href="#invite">Get your own Room!</a></p>
+        <p><a rel="invite" href="#invite">Invite People</a> <a href="./" target="_new">Get your own Room!</a></p>
       </div>
     </div>
   </script>

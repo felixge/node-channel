@@ -18,6 +18,7 @@ ChatUi.prototype.init = function(context) {
   this.$messageButton = $('.message button', this.$chat);
   this.$topic = $('.left .header h1', this.$chat);
   this.$editTopic = $('.left .header a', this.$chat);
+  this.$invite = $('.right a[rel=invite]', this.$chat);
 };
 
 ChatUi.prototype.modal = function(options) {
@@ -142,6 +143,22 @@ ChatUi.prototype.bindEvents = function() {
      self.emit('editName');
      return false;
     }
+  });
+
+  this.$invite.click(function(e) {
+    var modal = self.modal({
+      type: 'invite'
+    });
+
+    var $modal = modal.$element, overlay = modal.overlay;
+
+    $('input', $modal).val(window.location.href);
+    $('form', $modal).submit(function() {
+      overlay.close();
+      return false;
+    });
+
+    return false;
   });
 };
 

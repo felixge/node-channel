@@ -133,6 +133,10 @@ h2{
   width: 220px;
 }
 
+.invite_modal input{
+  width: 180px;
+}
+
 .modal span{
   display: block;
   line-height: 20px;
