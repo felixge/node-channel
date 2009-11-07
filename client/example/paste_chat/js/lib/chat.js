@@ -11,7 +11,9 @@ Chat.prototype.init = function(home) {
 };
 
 Chat.prototype.createRoom = function() {
-  var prompt = this.ui.joinModal('Create Room'), self = this;
+  var name = $.cookie('pastechat.name');
+  var prompt = this.ui.joinModal('Create Room');
+  var self = this;
 
   prompt.addCallback(function(prompt) {
     prompt.activity('Creating Room');
@@ -29,11 +31,17 @@ Chat.prototype.createRoom = function() {
           _client_id: self.server.options.client_id
         });
         self.channel.emit('join', {name: prompt.name});
+        $.cookie('pastechat.name', prompt.name, {expires: 365});
       });
   });
+
+  if (name) {
+    prompt.emitName(name);
+  }
 };
 
 Chat.prototype.joinRoom = function(id) {
+  var name = $.cookie('pastechat.name');
   var prompt = this.ui.joinModal('Join Room'), self = this;
 
   prompt.addCallback(function(prompt) {
@@ -48,7 +56,12 @@ Chat.prototype.joinRoom = function(id) {
       _client_id: self.server.options.client_id
     });
     self.channel.emit('join', {name: prompt.name});
+    $.cookie('pastechat.name', prompt.name, {expires: 365});
   });
+
+  if (name) {
+    prompt.emitName(name);
+  }
 };
 
 Chat.prototype.connectRoom = function(id) {

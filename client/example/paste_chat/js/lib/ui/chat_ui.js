@@ -84,6 +84,11 @@ ChatUi.prototype.joinModal = function(button) {
       return false;
   });
 
+  promise.emitName = function(name) {
+    $('input', $modal).val(name);
+    $('form', $modal).submit();
+  };
+
   return promise;
 };
 
