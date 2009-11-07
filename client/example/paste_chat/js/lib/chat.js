@@ -96,7 +96,8 @@ Chat.prototype.bindChannel = function(channel) {
     .addListener('join', _.bind(this._handleJoin, this))
     .addListener('leave', _.bind(this._handleLeave, this))
     .addListener('message', _.bind(this._handleMessage, this))
-    .addListener('topic', _.bind(this._handleTopic, this));
+    .addListener('topic', _.bind(this._handleTopic, this))
+    .addListener('rename', _.bind(this._handleRename, this));
 
   channel.monitor
     .addListener('error', function(e) {
@@ -124,12 +125,28 @@ Chat.prototype.bindUi = function(ui) {
       prompt.addCallback(function(topic) {
         self.channel.emit('topic', {user: self.user.name, text: topic});
       });
+    })
+    .addListener('editName', function() {
+      var prompt = self.ui.joinModal('Rename');
+      prompt.addCallback(function(prompt) {
+        prompt.close();
+        $.cookie('pastechat.name', prompt.name, {expires: 365});
+        self.channel.emit('rename', {
+          oldUser: self.user.name,
+          newUser: prompt.name
+        });
+      });
     });
 };
 
 Chat.prototype._handleJoin = function(user) {
   user = new User(user);
   this.users.push(user);
+
+  user.isSelf = false;
+  if (user.client_id == this.user.client_id) {
+    user.isSelf = true;
+  }
 
   this.ui.userJoin(user);
   return user;
@@ -163,6 +180,20 @@ Chat.prototype._handleMessage = function(message) {
 
 Chat.prototype._handleTopic = function(topic) {
   this.ui.updateTopic(topic);
+};
+
+Chat.prototype._handleRename = function(rename) {
+  var renamer = _.detect(this.users, function(user) {
+    return user.client_id == rename._client_id;
+  });
+
+  renamer.name = rename.newUser;
+
+  if (renamer.client_id == this.user.client_id) {
+    this.user = renamer;
+  }
+
+  this.ui.userRename(renamer, rename.oldUser);
 };
 
 Chat.prototype.send = function(message) {

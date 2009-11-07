@@ -23,8 +23,12 @@
     <li><em><%=user%> changed the channel topic to "<%=text%>"</em></li>
   </script>
 
+  <script type="text/html" id="rename_message">
+    <li><em><%=oldName%> changed his name to "<%=newName%>"</em></li>
+  </script>
+
   <script type="text/html" id="user">
-    <li><%=name%></li>
+    <li rel="<%=client_id%>"><%=name%> <% if (isSelf) {%><a href="#edit">edit</a><%}%></li>
   </script>
 
   <script type="text/html" id="faildog">
@@ -73,42 +77,6 @@
           <a href="#edit">edit</a>
         </div>
         <ul class="log">
-          <!-- <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li>
-          <li><strong>Felix:</strong> I am saying hello</li>
-          <li><strong>Tim:</strong> would love to join</li> -->
         </ul>
         <div class="message">
           <textarea name="message"></textarea>
@@ -118,8 +86,6 @@
       <div class="right">
         <h2>Attending</h2>
         <ul>
-          <!-- <li>Felix <a href="#edit">rename</a></li>
-          <li>Tim</li> -->
         </ul>
         <p><a href="#invite">Invite People</a> <a href="#invite">Get your own Room!</a></p>
       </div>

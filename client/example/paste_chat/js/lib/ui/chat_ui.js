@@ -135,6 +135,14 @@ ChatUi.prototype.bindEvents = function() {
     self.emit('editTopic');
     return false;
   });
+
+  this.$users.click(function(e) {
+    var $target = $(e.target);
+    if ($target.is('a')) {
+     self.emit('editName');
+     return false;
+    }
+  });
 };
 
 ChatUi.prototype.log = function($element) {
@@ -154,7 +162,6 @@ ChatUi.prototype.log = function($element) {
 
 ChatUi.prototype.userJoin = function(user) {
   var $user = $(tmpl('user', user));
-  $user.attr('rel', user.client_id);
   this.$users.append($user);
 
   var $joinMessage = $(tmpl('join_message', {user: user}));
@@ -162,8 +169,8 @@ ChatUi.prototype.userJoin = function(user) {
 };
 
 ChatUi.prototype.userLeave = function(user) {
-  var $user = this.$users.find('[rel='+user.client_id+']');
-  $user.hide();
+  var $user = this.$users.find('li[rel='+user.client_id+']');
+  $user.remove();
 
   var $leaveMessage = $(tmpl('leave_message', {user: user}));
   this.log($leaveMessage);
@@ -178,6 +185,17 @@ ChatUi.prototype.updateTopic = function(topic) {
   this.$topic.text(topic.text);
   var $topicMessage = $(tmpl('topic_message', topic));
   this.log($topicMessage);
+};
+
+ChatUi.prototype.userRename = function(renamer, oldName) {
+  var $user = this.$users.find('li[rel='+renamer.client_id+']');
+  $user.replaceWith($(tmpl('user', renamer)));
+
+  var $renameMessage = $(tmpl('rename_message', {
+    oldName: oldName,
+    newName: renamer.name
+  }));
+  this.log($renameMessage);
 };
 
 ChatUi.prototype._emitMessage = function() {
