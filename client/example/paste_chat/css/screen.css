@@ -129,6 +129,10 @@ h2{
   width: 160px;
 }
 
+.topic_modal input{
+  width: 220px;
+}
+
 .modal span{
   display: block;
   line-height: 20px;

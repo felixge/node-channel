@@ -16,6 +16,8 @@ ChatUi.prototype.init = function(context) {
   this.$log = $('.left .log', this.$chat);
   this.$message = $('.message textarea', this.$chat);
   this.$messageButton = $('.message button', this.$chat);
+  this.$topic = $('.left .header h1', this.$chat);
+  this.$editTopic = $('.left .header a', this.$chat);
 };
 
 ChatUi.prototype.modal = function(options) {
@@ -92,6 +94,26 @@ ChatUi.prototype.errorModal = function(error) {
   });
 };
 
+ChatUi.prototype.topicModal = function() {
+  var promise = new node.Promise();
+
+  var modal = this.modal({
+    type: 'topic'
+  });
+
+  var $modal = modal.$element, overlay = modal.overlay;
+  var self = this;
+
+  $('input', $modal).focus();
+  $('form', $modal).submit(function() {
+    overlay.close();
+    promise.emitSuccess($('input', $modal).val());
+    return false;
+  });
+
+  return promise;
+};
+
 ChatUi.prototype.bindEvents = function() {
   var self = this;
   this.$message.keypress(function(e) {
@@ -102,6 +124,11 @@ ChatUi.prototype.bindEvents = function() {
   });
   this.$messageButton.click(function(e) {
     self._emitMessage();
+  });
+
+  this.$editTopic.click(function() {
+    self.emit('editTopic');
+    return false;
   });
 };
 
@@ -140,6 +167,12 @@ ChatUi.prototype.userLeave = function(user) {
 ChatUi.prototype.userMessage = function(message) {
   var $message = $(tmpl('message', message));
   this.log($message);
+};
+
+ChatUi.prototype.updateTopic = function(topic) {
+  this.$topic.text(topic.text);
+  var $topicMessage = $(tmpl('topic_message', topic));
+  this.log($topicMessage);
 };
 
 ChatUi.prototype._emitMessage = function() {

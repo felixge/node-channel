@@ -19,6 +19,10 @@
     <li><em><%=user.name%> has left the room</em></li>
   </script>
 
+  <script type="text/html" id="topic_message">
+    <li><em><%=user%> changed the channel topic to "<%=text%>"</em></li>
+  </script>
+
   <script type="text/html" id="user">
     <li><%=name%></li>
   </script>
@@ -36,6 +40,16 @@
         <button><%=button%></button>
       </form>
       <span style="display: none;">Joining Room</span>
+    </div>
+  </script>
+
+  <script type="text/html" id="topic_modal">
+    <div class="modal topic_modal">
+      <form>
+        <label for="topic">Topic:</label>
+        <input type="text" id="topic">
+        <button>Set Topic</button>
+      </form>
     </div>
   </script>
 
@@ -116,7 +130,7 @@
   <div class="home">
     <h1>pastechat.com</h1>
     <p>Temporary chat rooms, whenever you need them.</p>
-    <button class="hidden">Create Room</button>
+    <button>Create Room</button>
   </div>
 
   <script type="text/javascript" src="../../dep/jquery.js"></script>

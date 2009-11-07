@@ -82,7 +82,8 @@ Chat.prototype.bindChannel = function(channel) {
   channel
     .addListener('join', _.bind(this._handleJoin, this))
     .addListener('leave', _.bind(this._handleLeave, this))
-    .addListener('message', _.bind(this._handleMessage, this));
+    .addListener('message', _.bind(this._handleMessage, this))
+    .addListener('topic', _.bind(this._handleTopic, this));
 
   channel.monitor
     .addListener('error', function(e) {
@@ -104,6 +105,12 @@ Chat.prototype.bindUi = function(ui) {
   ui
     .addListener('message', function(text) {
       self.send(text);
+    })
+    .addListener('editTopic', function() {
+      var prompt = self.ui.topicModal();
+      prompt.addCallback(function(topic) {
+        self.channel.emit('topic', {user: self.user.name, text: topic});
+      });
     });
 };
 
@@ -139,6 +146,10 @@ Chat.prototype._handleMessage = function(message) {
     return false;
   }
   this.ui.userMessage(message);
+};
+
+Chat.prototype._handleTopic = function(topic) {
+  this.ui.updateTopic(topic);
 };
 
 Chat.prototype.send = function(message) {
