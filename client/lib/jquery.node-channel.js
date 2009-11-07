@@ -264,6 +264,7 @@ try {
 
     this.timeout = 45 * 1000;
     this.pause =  1 * 1000;
+    this.requestNum = 0;
   };
   node.inherits(nodeChannel.Channel, node.EventEmitter);
 
@@ -310,6 +311,7 @@ try {
     var self = this;
     request.addCallback(function(r) {
       self._emitHistory(r.history);
+      self.requestNum++;
 
       setTimeout(function() {
         self.listen();

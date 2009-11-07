@@ -131,9 +131,18 @@ Chat.prototype._handleLeave = function(leaver) {
 };
 
 Chat.prototype._handleMessage = function(message) {
+  // Ignore messages we send ourselves unless this is request #1 (history fetch)
+  var ignore = (message._client_id == this.user.client_id)
+            && (this.channel.requestNum > 0);
+
+  if (ignore) {
+    return false;
+  }
   this.ui.userMessage(message);
 };
 
 Chat.prototype.send = function(message) {
-  this.channel.emit('message', {user: this.user.name, text: message});
+  message = {user: this.user.name, text: message};
+  this.channel.emit('message', message);
+  this.ui.userMessage(message);
 };
